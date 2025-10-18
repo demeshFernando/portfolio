@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>Floating header</title>
+        <link rel="stylesheet" href="./styles.css">
+    </head>
+    <body>
+        <div class="picture"></div>
+        <div id="overlayID">
+            <div id="header" class="header">
+                <h1>this is the header</h1>
+            </div>
+        </div>
+        <div class="body"></div>
+
+
+        <script>
+            const headerDiv = document.getElementById('header');
+            const overlayElement = document.getElementById('overlayID');
+
+            window.addEventListener('scroll', () => {
+                const rect = headerDiv.getBoundingClientRect();
+                if(rect.top <= 5) {
+                    headerDiv.classList.add('header-active');
+                    overlayElement.classList.add('header-overlay');
+                } else {
+                    headerDiv.classList.remove('header-active');
+                    overlayElement.classList.remove('header-overlay');
+                }
+            })
+        </script>
+    </body>
+</html>
