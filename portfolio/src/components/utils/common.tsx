@@ -2,7 +2,7 @@ type MultiPropsType<T extends Record<string ,unknown>, S extends keyof T> = {
     identifier: 'multi',
     model: T,
     binders: {
-        [K in S]: T[K];
+        [K in S]?: T[K];
     }
 };
 
@@ -27,4 +27,14 @@ export function bindToModel<T extends Record<string, unknown>, S extends keyof T
         ...props.model,
         ...props.binders,
     };
+}
+
+export async function executeCollectionFetcher<T extends Record<string, unknown>>(fetchFn: () => Promise<T[]>): Promise<T[]> {
+    try {
+        //let's try executing the function
+        const results = await fetchFn();
+        return results;
+    } catch (E) {
+        throw 'Cannot fetch ' + E;
+    }
 }
