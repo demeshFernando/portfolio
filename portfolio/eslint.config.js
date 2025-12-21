@@ -5,6 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import react from 'eslint-plugin-react'
+import prettierConfig from 'eslint-plugin-prettier/recommended'
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -22,6 +23,7 @@ export default defineConfig([
     },
     plugins: {
       react,
+      prettier: prettierConfig.plugins.prettier,
     },
     rules: {
       'react/jsx-uses-react': 'error',
@@ -37,7 +39,7 @@ export default defineConfig([
       'camelcase': ['error', { properties: 'always' }],
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
-      'no-multiple-empty-lines': ['error', { max: 1 }]
+      'no-multiple-empty-lines': ['error', { max: 1 }],
     },
   },
 ])
