@@ -1,0 +1,111 @@
+.brief-exp-overlay {
+    display: flex;
+    flex-direction: column;
+    padding: 0 40px;
+}
+
+.company {
+    width: 75%;
+    padding: 10px;
+}
+
+.left-aligned {
+    justify-content: flex-end;
+}
+
+.company-header {
+    display: flex;
+    align-items: center;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.position-overlay {
+    display: flex;
+    justify-content: start;
+}
+
+.bullet-with-line {
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+}
+
+.bullet {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: rgb(177, 177, 177);
+    margin-bottom: 10px;
+}
+
+.line {
+    width: 1px;
+    height: 80%;
+    padding: 10px 0;
+    background-color: rgb(177, 177, 177);
+}
+
+.position {
+    padding: 10px;
+}
+
+.position-details {
+    padding: 10px;
+}
+
+.projects {
+    padding: 10px;
+}
+
+.project-details {
+    padding: 10px;
+}
+
+.project {
+    padding: 5px;
+}
+
+.technology-header {
+    padding: 5px;
+}
+
+.technologies {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.technology {
+    padding: 5px 15px;
+    margin: 5px 5px;
+    background-color: rgb(204, 240, 204);
+    border: 1px solid rgb(17, 44, 17);
+    color: rgb(17, 44, 17);
+    border-radius: 25px;
+}
+
+.technology:hover {
+    animation: bounceTile 0.5s forwards;
+}
+
+@keyframes bounceTile {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.02);
+    }
+}
