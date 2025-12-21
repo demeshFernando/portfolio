@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import Loader from '../Loader/Loader';
 
 import PortFolioStyles from './HookStyles/portfolioStyles.module.css';
@@ -8,6 +8,7 @@ type PortfolioCollectionProps<T extends Record<string, unknown>> = {
     helperAttributes?: {
         name?: string;
         fetchFn?: () => Promise<T[]>;
+        afterFetchTrig?: () => void;
     };
 };
 
@@ -59,10 +60,35 @@ function collectionReducer<T extends Record<string, unknown>>(state: T[] | null,
 export default function usePortfolioCollection<T extends Record<string, unknown>>(props: PortfolioCollectionProps<T>){
     const [collection, collectionDispatcher] = useReducer<T[] | null, [ActionsType<T>]>(collectionReducer, props.collection);
     const [stateElements, setStateElements] = useState(<Loader key={0} />);
-    const fetchCollection = useRef<{
+    const [shouldCollectionFetch, setCollectionFetcher] = useState<{
         fetch: boolean;
         includeToCollection?: boolean;
-    } | null>({ fetch: false });
+    }>({ fetch: false });
+    const fetchCollectionRef = useRef<{
+        fetch: boolean;
+        fetchCount: number;
+    }>({
+        fetch: false,
+        fetchCount: 0
+    });
+
+    const fetchCollection = useCallback((timesToBeFetched?: number, includeToCollection?: boolean) => {
+        if(includeToCollection) setCollectionFetcher({ fetch: true, includeToCollection: true });
+        setCollectionFetcher({ fetch: true });
+
+        if(timesToBeFetched && timesToBeFetched <= fetchCollectionRef.current['fetchCount']) {
+            const prevFetchRef = fetchCollectionRef.current;
+            fetchCollectionRef.current = {
+                fetch: true,
+                fetchCount: prevFetchRef.fetchCount++
+            };
+        } else if(!fetchCollectionRef.current['fetchCount']) {
+            fetchCollectionRef.current = {
+                fetch: true,
+                fetchCount: 1
+            };
+        }
+    }, []);
 
     useEffect(() => {
         if(collection && !collection.length) {
@@ -76,31 +102,38 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
             add?: boolean;
         }) => {
             if(props.helperAttributes && props.helperAttributes.fetchFn) {
-                const collection = await props.helperAttributes.fetchFn();
-                if(fetchAttributes) {
-                    if(fetchAttributes.add){
+                try {
+                    const collection = await props.helperAttributes.fetchFn();
+                    if(fetchAttributes && collection) {
+                        if(fetchAttributes.add){
+                            collectionDispatcher({
+                                type: 'add',
+                                attributes: collection,
+                            });
+                        }
+                    }
+                    if(collection) {
                         collectionDispatcher({
-                            type: 'add',
+                            type: 'reset',
                             attributes: collection,
                         });
                     }
+                } catch (E) {
+                    throw 'error found in fetching the collection ' + E;
+                } finally {
+                    if(props.helperAttributes.afterFetchTrig) props.helperAttributes.afterFetchTrig();
                 }
-                collectionDispatcher({
-                    type: 'reset',
-                    attributes: collection,
-                });
             }
-            fetchCollection.current = ({
-                fetch: false,
-            });
+            fetchCollectionRef.current['fetch'] = false;
+            setCollectionFetcher({ fetch: false, includeToCollection: false });
         };
 
-        if(fetchCollection && fetchCollection.current && fetchCollection.current.fetch) {
-            if(fetchCollection.current.includeToCollection) {
+        if(fetchCollectionRef && fetchCollectionRef.current && shouldCollectionFetch.fetch) {
+            if(shouldCollectionFetch.includeToCollection) {
                 startFetchingCollection({ add: true });
             } else startFetchingCollection();
         }
-    }, [fetchCollection, props.helperAttributes]);
+    }, [shouldCollectionFetch.fetch, props.helperAttributes, shouldCollectionFetch.includeToCollection]);
 
     return {
         collection,
