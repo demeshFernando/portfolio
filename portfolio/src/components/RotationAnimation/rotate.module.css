@@ -1,0 +1,41 @@
+.h3Header {
+    display: flex;
+    align-items: center;
+    transition: all 0.5s ease;
+}
+
+.h3Header:hover {
+    cursor: pointer;
+}
+
+.down {
+    animation: rotateDown 0.5s forwards;
+}
+
+@keyframes rotateDown {
+    0% {
+        transform: rotate(0deg);
+    }
+    85% {
+        transform: rotate(195deg);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+.up {
+    animation: rotateUp 0.5s forwards;
+}
+
+@keyframes rotateUp {
+    0% {
+        transform: rotate(180deg);
+    }
+    85% {
+        transform: rotate(-15deg)
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}

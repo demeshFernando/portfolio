@@ -1,0 +1,44 @@
+.selectables-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selectables {
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    padding: 5px;
+}
+
+.selectable {
+    padding: 10px 20px;
+    transition: all 0.05s ease;
+}
+
+.selectable:hover {
+    cursor: pointer;
+}
+
+@keyframes bounce {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.02);
+    }
+}
+
+.indicator {
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: left 0.3s ease, width 0.3s ease;
+    border-radius: 25px;
+}
+
+.indicator:hover {
+    animation: bounce 0.5s forwards;
+    cursor: pointer;
+}
