@@ -1,0 +1,80 @@
+.header-wrapper {
+    width: 100%;
+    height: 600px;
+    background-color: #280404;
+    display: flex;
+}
+
+.header-left {
+    width: 35%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+    padding-left: 35px;
+}
+
+.vision-header {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding-bottom: 10px;
+    color: white;
+    font-size: 25px;
+}
+
+.vision-body {
+    width: 100%;
+    color: white;
+    font-size: 18px;
+}
+
+.header-right {
+    width: 65%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.greeting-header {
+    padding-bottom: 20px;
+}
+
+.owner-greeting, .owner-name, .owner-position {
+    width: 100%;
+    display: flex;
+    padding: 0 200px;
+}
+
+.owner-greeting {
+    font-family: 'Pacifico';
+    font-size: 18px;
+    justify-content: start;
+}
+
+.owner-name {
+    font-size: 60px;
+    justify-content: center;
+}
+
+.owner-position {
+    justify-content: flex-end;
+    font-family: 'Pacifico';
+    font-size: 18px;
+}
+
+.pathway {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.pathway-header {
+    padding-bottom: 10px;
+}

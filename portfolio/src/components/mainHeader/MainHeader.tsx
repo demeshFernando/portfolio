@@ -4,11 +4,17 @@ import usePortfolioCollection from '../Hooks/usePortfolioCollection';
 
 import Icon from '../portfolioIcon/Icon';
 import { ContactType } from '../utils/constants';
+import { usePortfolioModel } from '../Hooks/usePortfolioModel';
 
 //#region type definition
 type HeaderModelType = {
     ID: number;
     Name: string;
+};
+
+type MainHeaderModelType = {
+    IsStruck: boolean;
+    ActiveElementID: number;
 };
 
 type ContactInformationType = {
@@ -21,6 +27,7 @@ type ContactInformationType = {
 
 type ContactButtonType = {
     StruckedState: boolean;
+    EnableStatus: boolean;
 };
 
 type contactButtonHoverDeciderType = {
@@ -79,19 +86,11 @@ function getDecidedContactClassNames(struckState: boolean) {
 }
 
 async function fetchHeaderItems(): Promise<HeaderModelType[]>{
-    try {
-        return headerItems;
-    } catch (error) {
-        throw new Error(error + '');
-    }
+    return headerItems;
 }
 
 async function fetchContactInformation(): Promise<ContactInformationType[]>{
-    try {
-        return contactInformation;
-    } catch (error) {
-        throw new Error(error + '');
-    }
+    return contactInformation;
 }
 
 function openLink(link: string | null) {
@@ -107,11 +106,13 @@ function ContactButton(props: ContactButtonType){
     const { collection: contactInfo, helpers } = usePortfolioCollection<ContactInformationType>({ collection: null, helperAttributes: { name: 'Contacts', fetchFn: fetchContactInformation } });
 
     const handleMouseEnter = (identifier: contactButtonHoverDeciderType['type']) => {
-        hoverTimeout.current = setTimeout(() => {
-            if(identifier === 'phone') setHovered({ type: 'phone', ID: 1});
-            else if(identifier === 'email') setHovered({ type: 'email', ID: 2 });
-            else setHovered({ type: 'linkedIn', ID: 3 });
-        }, 500);
+        if(props.EnableStatus) {
+            hoverTimeout.current = setTimeout(() => {
+                if(identifier === 'phone') setHovered({ type: 'phone', ID: 1});
+                else if(identifier === 'email') setHovered({ type: 'email', ID: 2 });
+                else setHovered({ type: 'linkedIn', ID: 3 });
+            }, 500);
+        }
     };
 
     const handleMouseLeave = () => {
@@ -119,9 +120,22 @@ function ContactButton(props: ContactButtonType){
         setHovered(0);
     };
 
+    const handleContactInfoClick = (type: contactButtonHoverDeciderType['type'], ID: contactButtonHoverDeciderType['ID']) => {
+        if(props.EnableStatus) {
+            setHovered({ type: type, ID: ID });
+        }
+    };
+
+    const handleLinkTypeInfoClick = (link: string | null) => {
+        if(props.EnableStatus && link) {
+            setHovered(0);
+            openLink(link);
+        }
+    };
+
     useEffect(() => {
-        helpers.fetchCollection.current = ({ fetch: true });
-    }, [helpers]);
+        if(!contactInfo) helpers.fetchCollection();
+    }, [helpers, contactInfo]);
 
     let contactDetails = helpers.nullOrEmptyViewHolder;
 
@@ -131,7 +145,7 @@ function ContactButton(props: ContactButtonType){
                 return <div
                     onMouseEnter={() => handleMouseEnter('email')}
                     onMouseLeave={handleMouseLeave}
-                    onClick={() => setHovered({ type: 'email', ID: 2 })}
+                    onClick={() => handleContactInfoClick('email', 2)}
                     className={getDecidedContactClassNames(props.StruckedState)}
                     key={contact.ID}
                 >
@@ -140,7 +154,7 @@ function ContactButton(props: ContactButtonType){
                 </div>;
             } else if (contact.ContactTypeID === ContactType.Link) {
                 return <div
-                    onClick={() => { setHovered(0); openLink(contact.ClickHandler); }}
+                    onClick={() => handleLinkTypeInfoClick(contact.ClickHandler)}
                     className={getDecidedContactClassNames(props.StruckedState)}
                     key={contact.ID}
                 >
@@ -151,7 +165,7 @@ function ContactButton(props: ContactButtonType){
             return <div
                 onMouseEnter={() => handleMouseEnter('phone')}
                 onMouseLeave={handleMouseLeave}
-                onClick={() => setHovered({ type: 'phone', ID: 1})}
+                onClick={() => handleContactInfoClick('phone', 1)}
                 className={getDecidedContactClassNames(props.StruckedState)}
                 key={contact.ID}
             >
@@ -166,17 +180,25 @@ function ContactButton(props: ContactButtonType){
 //#endregion
 
 //#region main component
-export default function MainHeader(){
+export default function MainHeader(props: { EnableStatus: boolean }){
     const headerRef = useRef<HTMLDivElement>(null);
-    const [isStuck, setIsStuck] = useState(false);
-    const [activeElementID, setActiveElementID] = useState(0);
-
+    const { model: mainHeaderModel, helpers: mainHeaderModelHelper } = usePortfolioModel<MainHeaderModelType>({ model: {
+        IsStruck: false,
+        ActiveElementID: 0,
+    }});
     const { collection: headerCollection, helpers} = usePortfolioCollection<HeaderModelType>({ collection: null, helperAttributes: { name: 'Headers', fetchFn: fetchHeaderItems } });
+
+    //we have to disable the performing the button clicks
+    const onNavElementClick = (ID: number) => {
+        if(props.EnableStatus) {
+            mainHeaderModelHelper.binders.setToModel('ActiveElementID', ID);
+        }
+    };
 
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
-                setIsStuck(!entry.isIntersecting);
+                mainHeaderModelHelper.binders.setToModel('IsStruck', !entry.isIntersecting);
             },{
                 root: null,
                 threshold: 0,
@@ -184,45 +206,47 @@ export default function MainHeader(){
         );
         if (headerRef.current) observer.observe(headerRef.current);
 
-        if(!headerCollection) helpers.fetchCollection.current = ({ fetch: true });
-
         return () => {
             if(headerRef!.current) {
                 observer.unobserve(headerRef!.current);
             }
         };
+    }, [mainHeaderModelHelper]);
+
+    useEffect(() => {
+        if(!headerCollection) helpers.fetchCollection();
     }, [headerCollection, helpers]);
 
     let innerContent = helpers.nullOrEmptyViewHolder;
 
     if(headerCollection && headerCollection.length) {
         innerContent = headerCollection.map((headerItem, index) => {
-            if(!activeElementID && !index) {
-                return <div onClick={() => setActiveElementID(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!isStuck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
+            if(!mainHeaderModel.ActiveElementID && !index) {
+                return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
-            } else if (activeElementID === headerItem.ID) {
-                return <div onClick={() => setActiveElementID(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!isStuck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
+            } else if (mainHeaderModel.ActiveElementID === headerItem.ID) {
+                return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
             }
-            return <div onClick={() => setActiveElementID(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']}`}>
+            return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']}`}>
                 <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
             </div>;
         });
     }
 
     return <>
-        <div ref={headerRef} style={{ padding: '10px', height: '1px', width: '100%' }}></div>
+        <div ref={headerRef} style={{ padding: '10px', height: '1px', width: '100%', backgroundColor: '#280404', }}></div>
         <div className={ButtonStyles['header-overlay']}>
-            <div className={`${ButtonStyles.logo}${isStuck ? ' ' + ButtonStyles['active-logo'] : ''}`}>
-                {!isStuck ? 'D' : 'Demesh Fernando'}
+            <div className={`${ButtonStyles.logo}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles['active-logo'] : ''}`}>
+                {!mainHeaderModel.IsStruck ? 'D' : 'Demesh Fernando'}
             </div>
-            <div className={`${ButtonStyles.header}${isStuck ? ' ' + ButtonStyles.active : ''}`}>
+            <div className={`${ButtonStyles.header}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles.active : ''}`}>
                 {innerContent}
             </div>
             <div className={ButtonStyles['contact-wrapper']}>
-                <ContactButton StruckedState={isStuck} />
+                <ContactButton StruckedState={mainHeaderModel.IsStruck} EnableStatus={props.EnableStatus} />
             </div>
         </div>
     </>;
