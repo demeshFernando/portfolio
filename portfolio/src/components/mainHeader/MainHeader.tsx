@@ -5,6 +5,7 @@ import usePortfolioCollection from '../Hooks/usePortfolioCollection';
 import Icon from '../portfolioIcon/Icon';
 import { ContactType } from '../utils/constants';
 import { usePortfolioModel } from '../Hooks/usePortfolioModel';
+import { useBaseStorage } from '../utils/mainContext';
 
 //#region type definition
 type HeaderModelType = {
@@ -187,6 +188,7 @@ export default function MainHeader(props: { EnableStatus: boolean }){
         ActiveElementID: 0,
     }});
     const { collection: headerCollection, helpers} = usePortfolioCollection<HeaderModelType>({ collection: null, helperAttributes: { name: 'Headers', fetchFn: fetchHeaderItems } });
+    const storage = useBaseStorage();
 
     //we have to disable the performing the button clicks
     const onNavElementClick = (ID: number) => {
@@ -240,7 +242,7 @@ export default function MainHeader(props: { EnableStatus: boolean }){
         <div ref={headerRef} style={{ padding: '10px', height: '1px', width: '100%', backgroundColor: '#280404', }}></div>
         <div className={ButtonStyles['header-overlay']}>
             <div className={`${ButtonStyles.logo}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles['active-logo'] : ''}`}>
-                {!mainHeaderModel.IsStruck ? 'D' : 'Demesh Fernando'}
+                {!mainHeaderModel.IsStruck ? storage?.getConfigItem('ShortName') : storage?.getConfigItem('PortfolioUserName')}
             </div>
             <div className={`${ButtonStyles.header}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles.active : ''}`}>
                 {innerContent}

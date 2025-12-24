@@ -1,34 +1,48 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { usePortfolioModel } from '../Hooks/usePortfolioModel';
+import { usePortfolioModelWithSilent } from '../Hooks/usePortfolioModel';
+import { configs } from './application.config';
 
 type ContextModelType = {
     SourceID: number;
+    DisableButtons: boolean;
+    DisableMessageTitle: string;
 };
 
 type ContextType = {
-    Model: ContextModelType,
+    Model: ContextModelType;
+    SilentModel: typeof configs;
     Push: <S extends keyof ContextModelType>(key: S, value: ContextModelType[S]) => void;
     Pop: <S extends keyof ContextModelType>(key: S) => ContextModelType[S];
+    getConfigItem: <S extends keyof typeof configs>(key: S) => typeof configs[S];
 };
 
 const ContextInitializer = createContext<ContextType | null>(null);
 
 export function BaseContextProvider(props: { children: ReactNode }){
-    const { model: contextModel, helpers: contextHelper } = usePortfolioModel<ContextModelType>({
+    const { model: contextModel, silentModel: contextSilentModel } = usePortfolioModelWithSilent<ContextModelType, typeof configs>({
         model: {
             SourceID: 1,
-        }
+            DisableButtons: false,
+            DisableMessageTitle: 'This was disabled by the administration.'
+        },
+        silentModel: configs
     });
 
     const Push = <S extends keyof ContextModelType>(key: S, value: ContextModelType[S]) => {
-        contextHelper.binders.setToModel(key, value);
+        if(key in configs){
+            contextModel.helpers.binders.setToModel(key, value);
+        }
     };
 
     const Pop = <S extends keyof ContextModelType>(key: S) => {
-        return contextModel[key];
+        return contextModel.model[key];
     };
 
-    return <ContextInitializer.Provider value={{ Model: contextModel, Push, Pop }}>
+    const getConfigItem = <S extends keyof typeof configs>(key: S) => {
+        return contextSilentModel.binders.getValue(key);
+    };
+
+    return <ContextInitializer.Provider value={{ Model: contextModel.model, SilentModel: contextSilentModel.silentModel.current, Push, Pop, getConfigItem }}>
         {props.children}
     </ContextInitializer.Provider>;
 }
