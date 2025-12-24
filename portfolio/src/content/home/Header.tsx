@@ -103,7 +103,7 @@ export default function Header() {
     <div className={TopStyles['header-right']}>
         <div className={TopStyles['greeting-header']}>
             <div className={TopStyles['owner-greeting']}>Hi! there, I'm</div>
-            <div className={TopStyles['owner-name']}>Demesh Fernando</div>
+            <div className={TopStyles['owner-name']}>{storage?.getConfigItem('PortfolioUserName')}</div>
             <div className={TopStyles['owner-position']}>Trainee Software Engineer</div>
         </div>
         <div className={TopStyles['pathway']}>
