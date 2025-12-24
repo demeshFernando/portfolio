@@ -9,6 +9,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/:sourceId' element={<Home />} />
         </Routes>
       </BrowserRouter>
     </BaseContextProvider>

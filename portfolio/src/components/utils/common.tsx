@@ -38,3 +38,11 @@ export async function executeCollectionFetcher<T extends Record<string, unknown>
         throw 'Cannot fetch ' + E;
     }
 }
+
+export function isNumber(value: unknown): value is number {
+    try {
+        return !!Number(value);
+    } catch {
+        return false;
+    }
+}
