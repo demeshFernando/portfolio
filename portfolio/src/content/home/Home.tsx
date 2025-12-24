@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import usePortfolioCollection from '../../components/Hooks/usePortfolioCollection';
+import { usePortfolioSilentModel } from '../../components/Hooks/usePortfolioModel';
 import { useBaseStorage } from '../../components/utils/mainContext';
 
 import Footer from './Footer';
@@ -7,6 +8,8 @@ import Header from './Header';
 import WorkExperience from '../workExperiance/workExperiance';
 import UndergraduateLevel from '../undergraduate/Undergraduate';
 import { OutletMapper } from '../../components/utils/constants';
+import { useParams } from 'react-router-dom';
+import { isNumber } from '../../components/utils/common';
 
 //#region type
 type OutletCombinationsType = {
@@ -47,14 +50,24 @@ async function getOutlets(sourceId: number): Promise<OutletCombinationsType[]> {
 //#endregion
 
 //#region Cmpnts
-function Outlet(){
+function Outlet(props: { SourceID?: string }){
     const storage = useBaseStorage();
+    const silentModel = usePortfolioSilentModel({
+        model: {
+            Source: 0
+        }
+    });
     const { collection: outlet, helpers: outletHelper } = usePortfolioCollection({
         collection: null,
         helperAttributes: {
             name: 'Outlets',
             fetchFn: () => {
-                if(storage && storage.Pop('SourceID')) {
+                if(props.SourceID && isNumber(props.SourceID)){
+                    silentModel.binders.setToModel('Source', Number(props.SourceID));
+                    return getOutlets(Number(props.SourceID));
+                }
+                else if(storage && storage.Pop('SourceID')) {
+                    silentModel.binders.setToModel('Source', storage.Pop('SourceID'));
                     return getOutlets(storage.Pop('SourceID'));
                 }
                 throw 'SourceID need to be fixed to fetch the outlets';
@@ -67,15 +80,15 @@ function Outlet(){
     }, [outletHelper, storage?.Model.SourceID, outlet]);
 
     let contentView = outletHelper.nullOrEmptyViewHolder;
-    if(outlet && outlet.length && storage && storage.Pop('SourceID')) {
+    if(outlet && outlet.length) {
         contentView = outlet.map((navItem) => {
             switch(navItem.NavHeaderID) {
                 case OutletMapper.Undergraduate:
                     return <UndergraduateLevel />;
                 case OutletMapper.SoftwareEngineer:
-                    return <WorkExperience SourceID={storage.Pop('SourceID')} ViewType='brief' />;
+                    return <WorkExperience SourceID={silentModel.binders.getValue('Source')} ViewType='brief' />;
                 default:
-                    return <WorkExperience SourceID={storage.Pop('SourceID')} ViewType='brief' />;
+                    return <WorkExperience SourceID={silentModel.binders.getValue('Source')} ViewType='brief' />;
             }
         });
     }
@@ -84,9 +97,11 @@ function Outlet(){
 }
 
 export default function Home() {
+    //fetch the param
+    const { sourceId } = useParams<{sourceId?: string}>();
     return <>
         <Header />
-        <Outlet />
+        <Outlet SourceID={sourceId} />
         <Footer />
     </>;
 }
