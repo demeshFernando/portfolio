@@ -2,11 +2,12 @@ import { useEffect, type ReactNode } from 'react';
 import usePortfolioCollection from '../../components/Hooks/usePortfolioCollection';
 import workExperianceStyles from './workExperence.module.css';
 import { usePortfolioModelWithSilent } from '../../components/Hooks/usePortfolioModel';
-import { differenceInDays, isBefore } from 'date-fns';
+import { differenceInDays, format, isBefore } from 'date-fns';
 
 import HeaderText from '../../components/HeaderText/HeaderText';
 import H3Rotate from '../../components/RotationAnimation/Rotate';
 import Loader from '../../components/Loader/Loader';
+import { configs } from '../../components/utils/application.config';
 
 //#region types
 type WorkExperiancePropsType = {
@@ -306,6 +307,7 @@ async function prepareInitialExperianceView(experiences: Experience){
                     <PositionName experiences={experiences} experience={experience} />
                     <div className={workExperianceStyles['position-details']}>
                         <p>{experience.BriefDescription}</p>
+                        <StartEndTimeView experience={experience} />
                         {experience.IsProjectDetailsAvailable && <BriefProjectView experiences={experiences} experience={experience} />}
                     </div>
                 </div>
@@ -396,6 +398,25 @@ function PositionName(props: {
         modifiedPositionName += '(' + fomulatedPosition + ')';
     }
     return <h3>{modifiedPositionName}</h3>;
+}
+
+function StartEndTimeView(props: { experience: ExperienceViewTypeProps }){
+    const startDate = format(props.experience.StartDate, configs.DateFormat);
+    let endDate = null;
+    let view = 'Started on ';
+
+    if(props.experience.EndDate) {
+        endDate = format(props.experience.EndDate, configs.DateFormat);
+    }
+
+    // if there are no end dates
+    if(!endDate) {
+        view += startDate + ' - Present';
+    } else {
+        view = 'From ' + startDate + ', To ' + endDate;
+    }
+
+    return <h4 className={workExperianceStyles['date-time']}>{view}</h4>;
 }
 
 function BriefProjectView(props: {
