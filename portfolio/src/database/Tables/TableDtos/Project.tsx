@@ -39,8 +39,9 @@ const projectTable = new Table('Project', {
 projectTable.addReferenceKeys([
     {
         ColumnName: 'OrganizationID',
-        TableName: 'Organization',
-        ReferencingColumn: 'OrganizationID',
+        TableName: {
+            'Organization': 'OrganizationID',
+        },
         CascadeDelete: true,
     }
 ]);

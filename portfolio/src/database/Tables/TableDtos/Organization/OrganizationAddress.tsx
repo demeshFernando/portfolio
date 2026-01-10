@@ -24,7 +24,12 @@ const organizationAddressTable = new Table('OrganizationAddress', {
     OrganizationID: {
         ColumnName: 'OrganizationID',
         DataType: 'int',
-        IsRequired: true
+        IsRequired: true,
+        BindToTable: {
+            TableName: 'Organization',
+            ColumnName: 'OrganizationID',
+            DeleteOnCascade: true
+        }
     },
     DateInserted: {
         ColumnName: 'DateInserted',
@@ -37,14 +42,6 @@ const organizationAddressTable = new Table('OrganizationAddress', {
         IsRequired: true
     },
 });
-organizationAddressTable.addReferenceKeys([
-    {
-        ColumnName: 'OrganizationID',
-        TableName: 'Organization',
-        ReferencingColumn: 'OrganizationID',
-        CascadeDelete: true,
-    }
-]);
 organizationAddressTable.BulkAdd = [];
 
 export const OrganizationAddressColumns = organizationAddressTable.ColumnNames;

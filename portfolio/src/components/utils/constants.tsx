@@ -5,7 +5,7 @@ export const ContactType = {
 };
 
 export const OutletMapper = {
-    Undergraduate: 1,
-    SoftwareEngineer: 2,
+    School: 1,
+    Undergraduate: 2,
     Work: 3,
 };
