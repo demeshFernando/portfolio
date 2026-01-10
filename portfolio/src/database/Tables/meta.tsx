@@ -1,14 +1,12 @@
-import { Tables } from './tableExporter';
-
 export type ColumnType = {
     ColumnName: string;
-    DataType: 'string' | 'int' | 'dateTime';
+    DataType: 'string' | 'int' | 'dateTime' | 'bool';
     IsPrimaryKey?: boolean;
     IsIdentityColumn?: boolean;
     IdentityIncrementCounter?: number;
     IsRequired?: boolean;
     BindToTable?: {
-        TableName: keyof typeof Tables;
+        TableName: string;
         ColumnName: string;
         DeleteOnCascade?: boolean;
     };
@@ -18,8 +16,9 @@ type DataType = {
     string: string;
     int: number;
     dateTime: Date;
+    bool: boolean;
 };
-type ColumnDataType<C extends ColumnType> = DataType[C['DataType']];
+export type ColumnDataType<C extends ColumnType> = DataType[C['DataType']];
 type RequiredPart<T extends Record<string, ColumnType>> = {
     [K in keyof T as T[K]['IsRequired'] extends true ? K : never]: ColumnDataType<T[K]>
 };
