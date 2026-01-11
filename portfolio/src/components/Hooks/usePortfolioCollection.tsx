@@ -59,7 +59,7 @@ function collectionReducer<T extends Record<string, unknown>>(state: T[] | null,
 
 export default function usePortfolioCollection<T extends Record<string, unknown>>(props: PortfolioCollectionProps<T>){
     const [collection, collectionDispatcher] = useReducer<T[] | null, [ActionsType<T>]>(collectionReducer, props.collection);
-    const [stateElements, setStateElements] = useState(<Loader key={0} />);
+    const nullOrEmptyView = useRef(<Loader key={0} />);
     const [shouldCollectionFetch, setCollectionFetcher] = useState<{
         fetch: boolean;
         includeToCollection?: boolean;
@@ -90,11 +90,9 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
         }
     }, []);
 
-    useEffect(() => {
-        if(collection && !collection.length) {
-            setStateElements(<p key={0} className={PortFolioStyles['empty-collection-style']}>No {props.helperAttributes && props.helperAttributes.name ? props.helperAttributes.name : 'Collections'} Found</p>);
-        }
-    }, [collection, props.helperAttributes]);
+    if(collection && !collection.length) {
+        nullOrEmptyView.current = <p key={0} className={PortFolioStyles['empty-collection-style']}>No {props.helperAttributes && props.helperAttributes.name ? props.helperAttributes.name : 'Collections'} Found</p>;
+    }
 
     useEffect(() => {
         // let's fetch the collection if available
@@ -139,7 +137,7 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
         collection,
         collectionDispatcher,
         helpers: {
-            nullOrEmptyViewHolder: [stateElements],
+            nullOrEmptyViewHolder: [nullOrEmptyView.current],
             fetchCollection,
         },
     };
