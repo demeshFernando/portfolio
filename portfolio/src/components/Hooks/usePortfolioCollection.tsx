@@ -1,7 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import Loader from '../Loader/Loader';
-
-import PortFolioStyles from './HookStyles/portfolioStyles.module.css';
+import { useCallback, useReducer, useRef } from 'react';
 
 type PortfolioCollectionProps<T extends Record<string, unknown>> = {
     collection: T[] | null;
@@ -59,86 +56,68 @@ function collectionReducer<T extends Record<string, unknown>>(state: T[] | null,
 
 export default function usePortfolioCollection<T extends Record<string, unknown>>(props: PortfolioCollectionProps<T>){
     const [collection, collectionDispatcher] = useReducer<T[] | null, [ActionsType<T>]>(collectionReducer, props.collection);
-    const nullOrEmptyView = useRef(<Loader key={0} />);
-    const [shouldCollectionFetch, setCollectionFetcher] = useState<{
-        fetch: boolean;
-        includeToCollection?: boolean;
-    }>({ fetch: false });
-    const fetchCollectionRef = useRef<{
-        fetch: boolean;
-        fetchCount: number;
-    }>({
-        fetch: false,
-        fetchCount: 0
-    });
 
-    const fetchCollection = useCallback((timesToBeFetched?: number, includeToCollection?: boolean) => {
-        if(includeToCollection) setCollectionFetcher({ fetch: true, includeToCollection: true });
-        setCollectionFetcher({ fetch: true });
+    const fetchFnRef = useRef(props.helperAttributes?.fetchFn);
+    const afterFetchTrigRef = useRef(props.helperAttributes?.afterFetchTrig);
+    const abortRef = useRef<AbortController | null>(null);
+    const requestIdRef = useRef(0);
+    const isCollectionLoading = useRef(false);
+    const isCollectionEmpty = useRef<true | null>(null);
 
-        if(timesToBeFetched && timesToBeFetched <= fetchCollectionRef.current['fetchCount']) {
-            const prevFetchRef = fetchCollectionRef.current;
-            fetchCollectionRef.current = {
-                fetch: true,
-                fetchCount: prevFetchRef.fetchCount++
-            };
-        } else if(!fetchCollectionRef.current['fetchCount']) {
-            fetchCollectionRef.current = {
-                fetch: true,
-                fetchCount: 1
-            };
-        }
+    const cancelFetching = useCallback(() => {
+        abortRef.current?.abort();
+        abortRef.current = null;
     }, []);
 
-    if(collection && !collection.length) {
-        nullOrEmptyView.current = <p key={0} className={PortFolioStyles['empty-collection-style']}>No {props.helperAttributes && props.helperAttributes.name ? props.helperAttributes.name : 'Collections'} Found</p>;
-    }
+    const fetchCollection = useCallback(async (includeToCollection?: boolean) => {
+        const afterFetchFn = afterFetchTrigRef.current;
+        try {
+            const fetchFn = fetchFnRef.current;
 
-    useEffect(() => {
-        // let's fetch the collection if available
-        const startFetchingCollection = async (fetchAttributes?: {
-            add?: boolean;
-        }) => {
-            if(props.helperAttributes && props.helperAttributes.fetchFn) {
-                try {
-                    const collection = await props.helperAttributes.fetchFn();
-                    if(fetchAttributes && collection) {
-                        if(fetchAttributes.add){
-                            collectionDispatcher({
-                                type: 'add',
-                                attributes: collection,
-                            });
-                        }
-                    }
-                    if(collection) {
-                        collectionDispatcher({
-                            type: 'reset',
-                            attributes: collection,
-                        });
-                    }
-                } catch (E) {
-                    throw 'error found in fetching the collection ' + E;
-                } finally {
-                    if(props.helperAttributes.afterFetchTrig) props.helperAttributes.afterFetchTrig();
-                }
-            }
-            fetchCollectionRef.current['fetch'] = false;
-            setCollectionFetcher({ fetch: false, includeToCollection: false });
-        };
+            if(!fetchFn) return;
 
-        if(fetchCollectionRef && fetchCollectionRef.current && shouldCollectionFetch.fetch) {
-            if(shouldCollectionFetch.includeToCollection) {
-                startFetchingCollection({ add: true });
-            } else startFetchingCollection();
+            isCollectionLoading.current = true;
+            cancelFetching();
+            const reqId = ++requestIdRef.current;
+
+            const abortControllerHolder = new AbortController();
+            abortRef.current = abortControllerHolder;
+            const result = await fetchFn();
+            if(abortControllerHolder.signal.aborted || reqId !== requestIdRef.current) return;
+
+            if(includeToCollection) collectionDispatcher({ type: 'add', attributes: result });
+            else collectionDispatcher({ type: 'reset', attributes: result });
+
+            isCollectionLoading.current = false;
+            if(!result.length) isCollectionEmpty.current = true;
+
+            if(afterFetchFn) afterFetchFn();
+        } catch (E) {
+            throw 'error found in fetching the collection ' + E;
+        } finally {
+            if(afterFetchFn) afterFetchFn();
         }
-    }, [shouldCollectionFetch.fetch, props.helperAttributes, shouldCollectionFetch.includeToCollection]);
+    }, [cancelFetching]);
+
+    const add = useCallback((collection: T[]) => {
+        collectionDispatcher({ type: 'add', attributes: collection });
+    }, []);
+
+    const reset = useCallback((collection: T[]) => {
+        collectionDispatcher({ type: 'reset', attributes: collection });
+    }, []);
 
     return {
         collection,
-        collectionDispatcher,
         helpers: {
-            nullOrEmptyViewHolder: [nullOrEmptyView.current],
+            nullOrEmptyViewHolderAttributes: {
+                IsLoading: isCollectionLoading.current,
+                IsResultEmpty: isCollectionEmpty.current,
+                name: props.helperAttributes?.name
+            },
             fetchCollection,
+            add,
+            reset
         },
     };
 }
