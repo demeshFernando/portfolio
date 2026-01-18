@@ -4,3 +4,14 @@
     box-sizing: border-box;
     font-family: 'Roboto';
 }
+
+.empty-collection-style{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    color: black;
+    font-style: italic;
+    font-size: 12px;
+}

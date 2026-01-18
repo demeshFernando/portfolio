@@ -1,6 +1,6 @@
-import { useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 
-import { bindToModel } from '../utils/common';
+import { common } from '../utils/common';
 
 type ModelType<T extends Record<string, unknown>> = {
     model: T,
@@ -40,13 +40,13 @@ function startNeutrilizingModel<T extends Record<string, unknown>>(model: T, ini
 
 function reducer<T extends Record<string, unknown>, S extends keyof T>(state: T, action: ActionType<T, S>): T {
     switch(action.type) {
-        case 'set': return bindToModel({
+        case 'set': return common.bindToModel({
             identifier: 'single',
             model: { ...state },
             key: action.key,
             value: action.value,
         });
-        case 'sets': return bindToModel({
+        case 'sets': return common.bindToModel({
             identifier: 'multi',
             model: { ...state },
             binders: { ...action.attributes },
@@ -70,7 +70,7 @@ export function usePortfolioModel<T extends Record<string, unknown>>(props: Mode
         dispatchModel({ type: 'sets', attributes });
     };
 
-    const hasModelChanged = (key?: keyof T): boolean => {
+    const hasModelChanged = useCallback((key?: keyof T): boolean => {
         let hasChanged = false;
         if(!initialModel && !modelState) return false;
 
@@ -85,13 +85,13 @@ export function usePortfolioModel<T extends Record<string, unknown>>(props: Mode
         });
 
         return hasChanged;
-    };
+    }, [modelState]);
 
-    const neutrlizeModel = (neutrilizingKey?: keyof T) => {
+    const neutrlizeModel = useCallback((neutrilizingKey?: keyof T) => {
         if(!modelState && !initialModel) return;
         const neutrilizedModel = startNeutrilizingModel(modelState!, initialModel.current!, neutrilizingKey);
         initialModel.current = neutrilizedModel;
-    };
+    }, [modelState]);
 
     useEffect(() => {
         const startFetchingModel = async () => {
@@ -170,11 +170,11 @@ export function usePortfolioSilentModel<T extends Record<string, unknown>>(props
     const helper = {
         hasSilentModelChanged: (key?: keyof T) => {
             if(key) {
-                return initialModel.current[key] === silentModel.current[key];
+                return initialModel.current[key] !== silentModel.current[key];
             }
 
             Object.keys(initialModel.current).forEach(key => {
-                if(initialModel.current[key] === silentModel.current[key]) return true;
+                if(initialModel.current[key] === silentModel.current[key]) return false;
             });
 
             return false;
