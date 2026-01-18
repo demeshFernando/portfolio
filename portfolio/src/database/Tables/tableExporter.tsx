@@ -146,4 +146,32 @@ export const Tables = {
             Columns: contentView.ContentViewColumns,
         };
     },
+    utlNavContent: async () => {
+        const table = await import('./TableDtos/utlNavContent');
+        return {
+            Pointer: table.utlNavContent,
+            Columns: table.utlNavContentColumns
+        };
+    },
+    OutletNavContent: async() => {
+        const table = await import('./TableDtos/OutletNavContent');
+        return {
+            Pointer: table.OutletNavContent,
+            Columns: table.OutletNavContentColumns
+        };
+    },
+    utlOutletCategories: async() => {
+        const table = await import('./TableDtos/utlOutletCategories');
+        return {
+            Pointer: table.utlOutletCategories,
+            Columns: table.utlOutletCategoriesColumns
+        };
+    },
+    utlOutletUtlOutletCategories: async() => {
+        const table = await import('./TableDtos/utlOutletUtlOutletCategories');
+        return {
+            Pointer: table.utlOutletUtlOutletCategories,
+            Columns: table.utlOutletUtlOutletCategoriesColumns,
+        };
+    },
 };

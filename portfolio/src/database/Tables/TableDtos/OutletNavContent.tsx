@@ -1,21 +1,11 @@
 import { Table } from '../tableExporter';
 
-const ContentViewTable = new Table('ContentView', {
-    ContentViewID: {
-        ColumnName: 'ContentViewID',
+const OutletNavContentTable = new Table('OutletNavContent', {
+    OutletNavContentID: {
+        ColumnName: 'OutletNavContentID',
         DataType: 'int',
         IsPrimaryKey: true,
         IsIdentityColumn: true
-    },
-    ContentUtlViewID: {
-        ColumnName: 'ContentUtlViewID',
-        DataType: 'int',
-        IsRequired: true,
-        BindToTable: {
-            TableName: 'utlContentView',
-            ColumnName: 'ContentViewID',
-            DeleteOnCascade: true
-        },
     },
     OutletID: {
         ColumnName: 'OutletID',
@@ -34,13 +24,8 @@ const ContentViewTable = new Table('ContentView', {
         BindToTable: {
             TableName: 'utlNavContent',
             ColumnName: 'NavContentID',
-            DeleteOnCascade: true,
+            DeleteOnCascade: true
         },
-    },
-    IsVisible: {
-        ColumnName: 'IsVisible',
-        DataType: 'bool',
-        IsRequired: true
     },
     DateInserted: {
         ColumnName: 'DateInserted',
@@ -53,35 +38,29 @@ const ContentViewTable = new Table('ContentView', {
         IsRequired: true
     },
 });
-ContentViewTable.BulkAdd = [
+OutletNavContentTable.BulkAdd = [
     {
-        ContentViewID: 1,
-        ContentUtlViewID: 1,
-        OutletID: 1,
-        NavID: 1,
-        IsVisible: true,
-        DateInserted: new Date('2026-01-04'),
-        DateUpdated: new Date('2026-01-04'),
-    },
-    {
-        ContentViewID: 2,
-        ContentUtlViewID: 2,
-        IsVisible: true,
+        OutletNavContentID: 1,
         OutletID: 1,
         NavID: 1,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
     },
     {
-        ContentViewID: 3,
-        ContentUtlViewID: 3,
-        IsVisible: true,
+        OutletNavContentID: 2,
         OutletID: 1,
-        NavID: 1,
-        DateInserted: new Date('2026-01-16'),
-        DateUpdated: new Date('2026-01-16')
+        NavID: 2,
+        DateInserted: new Date('2026-01-04'),
+        DateUpdated: new Date('2026-01-04')
+    },
+    {
+        OutletNavContentID: 3,
+        OutletID: 1,
+        NavID: 3,
+        DateInserted: new Date('2026-01-04'),
+        DateUpdated: new Date('2026-01-04')
     }
 ];
 
-export const ContentViewColumns = ContentViewTable.ColumnNames;
-export const ContentView = ContentViewTable.Rows;
+export const OutletNavContentColumns = OutletNavContentTable.ColumnNames;
+export const OutletNavContent = OutletNavContentTable.Rows;

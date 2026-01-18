@@ -17,6 +17,9 @@ function compareValues<V>(a: V, b: V, order: 'asc' | 'desc'): number {
         const diff = a.getTime() - b.getTime();
         return order === 'asc' ? diff : -diff;
     }
+    if(typeof a === 'boolean' && typeof b === 'boolean') {
+        return order === 'asc' ? 1 : -1;
+    }
     if(typeof a === 'string' && typeof b === 'string') {
         const cmp = a.localeCompare(b);
         return order === 'asc' ? cmp : -cmp;
