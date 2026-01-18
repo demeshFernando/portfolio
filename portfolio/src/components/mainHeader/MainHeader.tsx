@@ -6,16 +6,24 @@ import Icon from '../portfolioIcon/Icon';
 import { ContactType } from '../utils/constants';
 import { usePortfolioModel } from '../Hooks/usePortfolioModel';
 import { useBaseStorage } from '../utils/mainContext';
+import { common } from '../utils/common';
 
 //#region type definition
+type MainHeaderPropsType = {
+    ActiveNavID: number;
+    IsElementEnabled: boolean;
+    NavItems: HeaderModelType[] | null;
+    onActiveElementChange: (elementID: number) => void;
+};
+
 type HeaderModelType = {
-    ID: number;
+    NavID: number;
     Name: string;
+    SortOrder: number;
 };
 
 type MainHeaderModelType = {
     IsStruck: boolean;
-    ActiveElementID: number;
 };
 
 type ContactInformationType = {
@@ -35,21 +43,6 @@ type contactButtonHoverDeciderType = {
     type: 'phone' | 'email' | 'linkedIn',
     ID: 1 | 2 | 3,
 };
-
-const headerItems: HeaderModelType[] = [
-    {
-        ID: 1,
-        Name: 'Work',
-    },
-    {
-        ID: 2,
-        Name: 'Undergraduate',
-    },
-    {
-        ID: 3,
-        Name: 'School'
-    }
-];
 
 const contactInformation: ContactInformationType[] = [
     {
@@ -84,10 +77,6 @@ function getDecidedContactClassNames(struckState: boolean) {
         return initialClasses += ' ' + ButtonStyles['active-contact'];
     }
     return initialClasses;
-}
-
-async function fetchHeaderItems(): Promise<HeaderModelType[]>{
-    return headerItems;
 }
 
 async function fetchContactInformation(): Promise<ContactInformationType[]>{
@@ -138,7 +127,7 @@ function ContactButton(props: ContactButtonType){
         if(!contactInfo) helpers.fetchCollection();
     }, [helpers, contactInfo]);
 
-    let contactDetails = helpers.nullOrEmptyViewHolder;
+    let contactDetails = common.nullOrEmptyViewHolder(helpers.nullOrEmptyViewHolderAttributes);
 
     if(contactInfo && contactInfo.length && contactInfo.length === 3) {
         contactDetails = contactInfo.map(contact => {
@@ -181,19 +170,18 @@ function ContactButton(props: ContactButtonType){
 //#endregion
 
 //#region main component
-export default function MainHeader(props: { EnableStatus: boolean }){
+export default function MainHeader(props: MainHeaderPropsType){
     const headerRef = useRef<HTMLDivElement>(null);
     const { model: mainHeaderModel, helpers: mainHeaderModelHelper } = usePortfolioModel<MainHeaderModelType>({ model: {
         IsStruck: false,
-        ActiveElementID: 0,
     }});
-    const { collection: headerCollection, helpers} = usePortfolioCollection<HeaderModelType>({ collection: null, helperAttributes: { name: 'Headers', fetchFn: fetchHeaderItems } });
+    const { collection: headerCollection, helpers} = usePortfolioCollection<HeaderModelType>({ collection: null, helperAttributes: { name: 'Headers' } });
     const storage = useBaseStorage();
 
     //we have to disable the performing the button clicks
     const onNavElementClick = (ID: number) => {
-        if(props.EnableStatus) {
-            mainHeaderModelHelper.binders.setToModel('ActiveElementID', ID);
+        if(props.IsElementEnabled) {
+            props.onActiveElementChange(ID);
         }
     };
 
@@ -216,23 +204,23 @@ export default function MainHeader(props: { EnableStatus: boolean }){
     }, [mainHeaderModelHelper]);
 
     useEffect(() => {
-        if(!headerCollection) helpers.fetchCollection();
-    }, [headerCollection, helpers]);
+        if(props.NavItems && !headerCollection) helpers.reset(props.NavItems);
+    }, [headerCollection, helpers, props.NavItems]);
 
-    let innerContent = helpers.nullOrEmptyViewHolder;
+    let innerContent = common.nullOrEmptyViewHolder(helpers.nullOrEmptyViewHolderAttributes);
 
     if(headerCollection && headerCollection.length) {
         innerContent = headerCollection.map((headerItem, index) => {
-            if(!mainHeaderModel.ActiveElementID && !index) {
-                return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
+            if(!props.ActiveNavID && !index) {
+                return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
-            } else if (mainHeaderModel.ActiveElementID === headerItem.ID) {
-                return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
+            } else if (props.ActiveNavID === headerItem.NavID) {
+                return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']} ${!mainHeaderModel.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
             }
-            return <div onClick={() => onNavElementClick(headerItem.ID)} key={headerItem.ID} className={`${ButtonStyles['header-element-overlay']}`}>
+            return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']}`}>
                 <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
             </div>;
         });
@@ -248,7 +236,7 @@ export default function MainHeader(props: { EnableStatus: boolean }){
                 {innerContent}
             </div>
             <div className={ButtonStyles['contact-wrapper']}>
-                <ContactButton StruckedState={mainHeaderModel.IsStruck} EnableStatus={props.EnableStatus} />
+                <ContactButton StruckedState={mainHeaderModel.IsStruck} EnableStatus={props.IsElementEnabled} />
             </div>
         </div>
     </>;

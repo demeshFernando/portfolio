@@ -26,7 +26,7 @@ export default function NavBar(props: NavBarProps){
     });
 
     const onNavBarElClick = (elProps: { index: number, ID: number, navBarClickHandler: (sourceId: number) => void }) => {
-        if(elProps.ID > 0 && !props.DisableNavBar) {
+        if(elProps.ID > 0 && !props.DisableNavBar && elProps.index !== navBarModel.ActiveIndex) {
             helpers.binders.setToModel('ActiveIndex', elProps.index);
             elProps.navBarClickHandler(elProps.ID);
         }

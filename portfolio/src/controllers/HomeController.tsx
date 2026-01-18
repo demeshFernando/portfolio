@@ -1,12 +1,8 @@
+import ContentViewGet from '../database/Procedures/ContentViewGet';
+import NavHeadersGet from '../database/Procedures/NavHeadersGet';
 import OutletGet from '../database/Procedures/OutletGet';
 
-async function outletGet(): Promise<{
-    ContentViewID: number;
-    ContentUtlViewID: number;
-    ContentName: string;
-    OutletID: number;
-    OutletName: string;
-}[]> {
+async function outletGet() {
     try {
         const result = await OutletGet();
         if(result) {
@@ -17,6 +13,28 @@ async function outletGet(): Promise<{
     }
 }
 
+async function navHeadersGet(outletID: number) {
+    try {
+        const result = await NavHeadersGet(outletID);
+        if(result) return result;
+        else return [];
+    } catch {
+        throw new Error('Nav data fetching failed');
+    }
+}
+
+async function contentViewGet(outletID: number, sourceID: number) {
+    try {
+        const result = await ContentViewGet(outletID, sourceID);
+        if(result) return result;
+        else return [];
+    } catch {
+        throw new Error('Content view fetching failed');
+    }
+}
+
 export const HomeAPI = {
-    outletGet: outletGet,
+    outletGet,
+    navHeadersGet,
+    contentViewGet,
 };
