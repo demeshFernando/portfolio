@@ -47,7 +47,7 @@ function Outlet(props: { selectedNavID: number }){
         if(!outletCollection.collection) outletCollection.helpers.fetchCollection();
     }, [outletCollection.collection, outletCollection.helpers]);
     useEffect(() => {
-        if(silentModel.binders.getValue('SelectedNavID') == 0 || silentModel.silentModelHelper.hasSilentModelChanged('SelectedNavID')) {
+        if(silentModel.binders.getValue('SelectedNavID') == 0 || silentModel.binders.getValue('SelectedNavID') !== props.selectedNavID) {
             silentModel.binders.setToModel('SelectedNavID', props.selectedNavID);
             silentModel.silentModelHelper.neutrilizeSilentModel('SelectedNavID');
             outletCollection.helpers.fetchCollection();
@@ -97,7 +97,11 @@ export default function Body() {
     }, [navCollection.collection, navCollection.helpers]);
     useEffect(() => {
         if(navCollection.collection && navCollection.collection.length && (bodyModel.helpers.hasModelChanged('ActiveNavID') || bodyModel.model.ActiveNavID === 0)) {
-            bodyModel.helpers.binders.setToModel('ActiveNavID', navCollection.collection[0].NavID);
+            // the active nav ID should be changed only when it is 0
+            if(bodyModel.model.ActiveNavID === 0) {
+                bodyModel.helpers.binders.setToModel('ActiveNavID', navCollection.collection[0].NavID);
+            }
+
             bodyModel.helpers.neutrlizeModel('ActiveNavID');
         }
     }, [bodyModel.helpers, bodyModel.helpers.binders, bodyModel.model.ActiveNavID, navCollection.collection]);
