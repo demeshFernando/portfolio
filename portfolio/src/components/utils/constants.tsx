@@ -1,6 +1,6 @@
 export const ContactType = {
-    Phone: 1,
-    Email: 2,
+    Phone: 2,
+    Email: 1,
     Link: 3,
 };
 

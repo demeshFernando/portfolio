@@ -2,6 +2,8 @@ import { useBaseStorage } from '../../components/utils/mainContext';
 import { usePortfolioModel } from '../../components/Hooks/usePortfolioModel';
 import TopStyles from './header.module.css';
 import type { OutletCombinationsType } from './Home';
+import { useEffect, useState } from 'react';
+import { HomeAPI } from '../../controllers/HomeController';
 
 import NavBar, { type NavBarProps } from '../../components/NavBar/NavBar';
 
@@ -35,6 +37,29 @@ function prepareNavs(functions: {[key: string]: (sourceId: number) => void;}, na
 //#endregion
 
 //#region Cmpnts
+function UserPosition(){
+    const [position, setPosition] = useState({
+        PositionID: 0,
+        Position: '',
+    });
+    useEffect(() => {
+        const fetchPositions = async() => {
+            try {
+                const result = await HomeAPI.latestUserPositionGet();
+                setPosition(result);
+            } catch {
+                // let's ignore the error for now
+            }
+        };
+        fetchPositions();
+    }, []);
+
+    if(position.PositionID && position.Position) {
+        return <div className={TopStyles['owner-position']}>{position.Position}</div>;
+    }
+    return null;
+}
+
 export default function Header(props: { OutletData: OutletCombinationsType[] }) {
   const { model: headerModel, helpers: headerHelpers } = usePortfolioModel<NavHeaderType>({ model: { LoadNavBar: false, Vision: '' } });
   const storage = useBaseStorage();
@@ -68,7 +93,7 @@ export default function Header(props: { OutletData: OutletCombinationsType[] }) 
             <div className={TopStyles['greeting-header']}>
                 <div className={TopStyles['owner-greeting']}>Hi! there, I'm</div>
                 <div className={TopStyles['owner-name']}>{storage?.getConfigItem('PortfolioUserName')}</div>
-                <div className={TopStyles['owner-position']}>Trainee Software Engineer</div>
+                <UserPosition />
             </div>
             <div className={TopStyles['pathway']}>
                 <div className={TopStyles['pathway-header']}>My work as a,</div>
