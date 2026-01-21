@@ -174,4 +174,32 @@ export const Tables = {
             Columns: table.utlOutletUtlOutletCategoriesColumns,
         };
     },
+    utlContactType: async() => {
+        const table = await import('./TableDtos/utlContactType');
+        return {
+            Pointer: table.utlContactType,
+            Columns: table.utlContactTypeColumns
+        };
+    },
+    Contact: async() => {
+        const table = await import('./TableDtos/Contact');
+        return {
+            Pointer: table.Contact,
+            Columns: table.ContactColumns
+        };
+    },
+    utlJobPosition: async() => {
+        const table = await import('./TableDtos/utlJobPosition');
+        return {
+            Pointer: table.utlJobPosition,
+            Columns: table.utlJobPositionColumnNames
+        };
+    },
+    OrganizationPosition: async() => {
+        const table = await import('./TableDtos/OrganizationPosition');
+        return {
+            Pointer: table.OrganizationPosition,
+            Columns: table.OrganizationPositionColumnNames,
+        };
+    },
 };

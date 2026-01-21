@@ -1,6 +1,8 @@
+import CommonsGet from '../database/Procedures/CommonGets';
 import ContentViewGet from '../database/Procedures/ContentViewGet';
 import NavHeadersGet from '../database/Procedures/NavHeadersGet';
 import OutletGet from '../database/Procedures/OutletGet';
+import PrimaryContactsGet from '../database/Procedures/PrimaryContactDetailsGet';
 
 async function outletGet() {
     try {
@@ -33,8 +35,28 @@ async function contentViewGet(outletID: number, sourceID: number) {
     }
 }
 
+async function primaryContactGet() {
+    try {
+        const result = await PrimaryContactsGet();
+        return result;
+    } catch {
+        throw new Error('Primary Contacts cannot be fetched');
+    }
+}
+
+async function latestUserPositionGet() {
+    try {
+        const result = await CommonsGet({ Required: 'latestUserPosition' });
+        return result;
+    } catch {
+        throw new Error('Failed to fetch latest user position');
+    }
+}
+
 export const HomeAPI = {
     outletGet,
     navHeadersGet,
     contentViewGet,
+    primaryContactGet,
+    latestUserPositionGet
 };

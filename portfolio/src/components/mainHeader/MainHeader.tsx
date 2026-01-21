@@ -7,6 +7,7 @@ import { ContactType } from '../utils/constants';
 import { usePortfolioModel } from '../Hooks/usePortfolioModel';
 import { useBaseStorage } from '../utils/mainContext';
 import { common } from '../utils/common';
+import { HomeAPI } from '../../controllers/HomeController';
 
 //#region type definition
 type MainHeaderPropsType = {
@@ -27,11 +28,9 @@ type MainHeaderModelType = {
 };
 
 type ContactInformationType = {
-    ID: number;
-    IsPrimary: boolean;
+    ContactID: number;
     ContactTypeID: number;
     Contact: string;
-    ClickHandler: string | null;
 };
 
 type ContactButtonType = {
@@ -43,30 +42,6 @@ type contactButtonHoverDeciderType = {
     type: 'phone' | 'email' | 'linkedIn',
     ID: 1 | 2 | 3,
 };
-
-const contactInformation: ContactInformationType[] = [
-    {
-        ID: 1,
-        ContactTypeID: 1,
-        IsPrimary: true,
-        Contact: '(077) 048 6069',
-        ClickHandler: null,
-    },
-    {
-        ID: 2,
-        ContactTypeID: 2,
-        IsPrimary: true,
-        Contact: 'wdemeshfernando@gmail.com',
-        ClickHandler: null,
-    },
-    {
-        ID: 3,
-        ContactTypeID: 3,
-        IsPrimary: true,
-        Contact: 'link to the item',
-        ClickHandler: '',
-    }
-];
 //#endregion
 
 //#region outer functions
@@ -80,7 +55,7 @@ function getDecidedContactClassNames(struckState: boolean) {
 }
 
 async function fetchContactInformation(): Promise<ContactInformationType[]>{
-    return contactInformation;
+    return HomeAPI.primaryContactGet();
 }
 
 function openLink(link: string | null) {
@@ -137,16 +112,16 @@ function ContactButton(props: ContactButtonType){
                     onMouseLeave={handleMouseLeave}
                     onClick={() => handleContactInfoClick('email', 2)}
                     className={getDecidedContactClassNames(props.StruckedState)}
-                    key={contact.ID}
+                    key={contact.ContactID}
                 >
                     {hovered !== 0 && hovered.type === 'email' && <div className={ButtonStyles['contact-number']}>{contact.Contact}</div>}
                     <Icon icon='Email' />
                 </div>;
             } else if (contact.ContactTypeID === ContactType.Link) {
                 return <div
-                    onClick={() => handleLinkTypeInfoClick(contact.ClickHandler)}
+                    onClick={() => handleLinkTypeInfoClick(contact.Contact)}
                     className={getDecidedContactClassNames(props.StruckedState)}
-                    key={contact.ID}
+                    key={contact.ContactID}
                 >
                     <Icon icon='LinkedIn' />
                 </div>;
@@ -157,7 +132,7 @@ function ContactButton(props: ContactButtonType){
                 onMouseLeave={handleMouseLeave}
                 onClick={() => handleContactInfoClick('phone', 1)}
                 className={getDecidedContactClassNames(props.StruckedState)}
-                key={contact.ID}
+                key={contact.ContactID}
             >
                 {hovered !== 0 && hovered.type === 'phone' && <div className={ButtonStyles['contact-number']}>{contact.Contact}</div>}
                 <Icon icon='Phone' />
