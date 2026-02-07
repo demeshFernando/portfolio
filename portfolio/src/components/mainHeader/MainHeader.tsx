@@ -202,7 +202,7 @@ export default function MainHeader(props: MainHeaderPropsType){
     }
 
     return <>
-        <div ref={headerRef} style={{ padding: '10px', height: '1px', width: '100%', backgroundColor: '#280404', }}></div>
+        <div ref={headerRef} style={{ padding: '10px', height: '1px', width: '100%', backgroundColor: 'var(--background)', }}></div>
         <div className={ButtonStyles['header-overlay']}>
             <div className={`${ButtonStyles.logo}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles['active-logo'] : ''}`}>
                 {!mainHeaderModel.IsStruck ? storage?.getConfigItem('ShortName') : storage?.getConfigItem('PortfolioUserName')}
