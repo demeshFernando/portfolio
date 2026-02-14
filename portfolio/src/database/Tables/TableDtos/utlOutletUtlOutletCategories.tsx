@@ -66,6 +66,24 @@ utlOutletUtlOutletCategoriesTable.BulkAdd = [
         IsActive: true,
         DateInserted: new Date('2026-01-14'),
         DateUpdated: new Date('2026-01-14')
+    },
+    {
+        OutletOutletCategoriesID: 3,
+        OutletCategoriesID: 1,
+        OutletID: 2,
+        IsActive: true,
+        Priority: 2,
+        DateInserted: new Date('2026-02-14'),
+        DateUpdated: new Date('2026-02-14')
+    },
+    {
+        OutletOutletCategoriesID: 4,
+        OutletCategoriesID: 2,
+        OutletID: 2,
+        Priority: 1,
+        IsActive: true,
+        DateInserted: new Date('2026-02-14'),
+        DateUpdated: new Date('2026-02-14')
     }
 ];
 

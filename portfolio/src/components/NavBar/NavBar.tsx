@@ -51,9 +51,9 @@ export default function NavBar(props: NavBarProps){
 
     if(props.DisableNavBar) {
         finalView = <><div className={NavStyles['selectables']}>
-        {generatedElement}
-    </div>&nbsp;
-    <Loader size={20} /></>;
+                            {generatedElement}
+                        </div>&nbsp;
+                    <Loader size={20} color='#182157' /></>;
     }
 
     return <div className={NavStyles['selectables-overlay']}>
