@@ -7,7 +7,8 @@ import { HomeAPI } from '../../controllers/HomeController';
 
 import NavBar, { type NavBarProps } from '../../components/NavBar/NavBar';
 import { Carausel, CarauselContent, CarauselDots } from '../../components/Caraousel/Caraousel';
-import { images } from '../../components/Caraousel/testImage';
+import usePortfolioCollection from '../../components/Hooks/usePortfolioCollection';
+import { common } from '../../components/utils/common';
 
 //#region types
 type NavHeaderType = {
@@ -19,6 +20,12 @@ export type MainNavType = {
     ID: number;
     Name: string;
 };
+//#endregion
+
+//#region Collections
+async function carauselGet(idList: number[]) {
+    return await HomeAPI.carauselGet(idList);
+}
 //#endregion
 
 //#region outer fns
@@ -62,62 +69,43 @@ function UserPosition(){
     return null;
 }
 
-const tempCarauselDataHolder = [
-    {
-        ID: 1,
-        Img: images.Bird,
-        Header: 'Jhon Doe',
-        SubHeader: 'Front end developer',
-        Body: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit.',
-    },
-    {
-        ID: 2,
-        Img: images.Bird,
-        Header: 'Jhon Doe',
-        SubHeader: 'Front end developer',
-        Body: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit.',
-    },
-    {
-        ID: 3,
-        Img: images.Bird,
-        Header: 'Jhon Doe',
-        SubHeader: 'Front end developer',
-        Body: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit.',
-    },
-    {
-        ID: 4,
-        Img: images.Bird,
-        Header: 'Jhon Doe',
-        SubHeader: 'Front end developer',
-        Body: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit.',
-    },
-    {
-        ID: 5,
-        Img: images.Bird,
-        Header: 'Jhon Doe',
-        SubHeader: 'Front end developer',
-        Body: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit.',
-    },
-];
-
 function CarauselHandler() {
-    const carausel = new Carausel(tempCarauselDataHolder);
+    let carausel = new Carausel(null);
     const carauselModel = usePortfolioModel({
         model: {
             selectedCard: '',
         },
+    });
+    const carauselCollection = usePortfolioCollection({
+        collection: null,
+        helperAttributes: {
+            name: 'Carausel',
+            fetchFn: () => carauselGet(carausel.styleIDs),
+        }
     });
 
     const changeSelectedRadio = (selectedRadio: string) => {
         carauselModel.helpers.binders.setToModel('selectedCard', selectedRadio);
     };
 
-    return  <div className={TopStyles['header-left']}>
+    useEffect(() => {
+        if(!carauselCollection.collection) carauselCollection.helpers.fetchCollection();
+    }, [carauselCollection.collection, carauselCollection.helpers]);
+
+    if(carauselCollection.collection && carauselCollection.collection.length) {
+        carausel = new Carausel(carauselCollection.collection);
+        return  <div className={TopStyles['header-left']}>
+            <div className={TopStyles.window}>
+                <CarauselContent Content={carausel.CarauselOptions} SetSelectedRadio={changeSelectedRadio} SelectedRdoID={carauselModel.model.selectedCard} />
+            </div>
+            <CarauselDots Content={carausel.CarauselDotOptions} SelectedRdoID={carauselModel.model.selectedCard} />
+        </div>;
+    }
+    return <div className={TopStyles['header-left']}>
         <div className={TopStyles.window}>
-            <CarauselContent Content={carausel.CarauselOptions} SetSelectedRadio={changeSelectedRadio} SelectedRdoID={carauselModel.model.selectedCard} />
+            {common.nullOrEmptyViewHolder(carauselCollection.helpers.nullOrEmptyViewHolderAttributes)}
         </div>
-        <CarauselDots Content={carausel.CarauselDotOptions} SelectedRdoID={carauselModel.model.selectedCard} />
-    </div>;
+     </div>;
 }
 
 export default function Header(props: { OutletData: OutletCombinationsType[] }) {

@@ -1,3 +1,4 @@
+import CarauselGet from '../database/Procedures/CarauselGet';
 import CommonsGet from '../database/Procedures/CommonGets';
 import ContentViewGet from '../database/Procedures/ContentViewGet';
 import NavHeadersGet from '../database/Procedures/NavHeadersGet';
@@ -53,10 +54,20 @@ async function latestUserPositionGet() {
     }
 }
 
+async function carauselGet(idList: number[]) {
+    try {
+        const result = await CarauselGet(idList);
+        return result;
+    } catch {
+        throw new Error('Carausel Fetching failed');
+    }
+}
+
 export const HomeAPI = {
     outletGet,
     navHeadersGet,
     contentViewGet,
     primaryContactGet,
-    latestUserPositionGet
+    latestUserPositionGet,
+    carauselGet
 };

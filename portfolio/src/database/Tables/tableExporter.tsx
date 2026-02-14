@@ -202,4 +202,11 @@ export const Tables = {
             Columns: table.OrganizationPositionColumnNames,
         };
     },
+    Carausel: async() => {
+        const table = await import('./TableDtos/Carausel');
+        return {
+            Pointer: table.Carausel,
+            Columns: table.CarauselColumns,
+        };
+    },
 };

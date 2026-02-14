@@ -53,7 +53,7 @@ export function CarauselContent(props: CarauselContentComponentTypeProps) {
 
     // setting the default carausel IDs
     useEffect(() => {
-        const middleCarauselID = props.Content[Math.round(props.Content.length / 2) - 1].ID.toString();
+        const middleCarauselID = props.Content[0].ID.toString();
         if(carauselSilentModel.binders.getValue('setMiddleCarauselID')) {
             carauselSilentModel.binders.setToModel('activeRdo', middleCarauselID);
             props.SetSelectedRadio(middleCarauselID);
@@ -83,7 +83,7 @@ export function CarauselContent(props: CarauselContentComponentTypeProps) {
             />);
         carauselCards.push(<label key={carausel.ID + 'cardLabel'} htmlFor={'c-' + carausel.ID} className="carausel-item">
             <div className="caraousel-main_content">
-                <div className="img">{carausel.Img && <img src={carausel.Img} />}</div>
+                {carausel.ID.toString() === props.SelectedRdoID && <div className="img">{carausel.Img && <img src={carausel.Img} />}</div>}
 
                 <div className="caraousel-content">
                     <h1>{carausel.Header}</h1>
@@ -131,9 +131,11 @@ export class Carausel {
     private carauselData: CarauselContentComponentTypeProps['Content'] = [];
     private carauselDots: CarauselDotProps['Content'] = [];
 
-    constructor(carauselData: CarauselContentComponentTypeProps['Content']) {
-        this.prepareCarauselData(carauselData);
-        this.prepareCarauselDotsData();
+    constructor(carauselData: CarauselContentComponentTypeProps['Content'] | null) {
+        if(carauselData) {
+            this.prepareCarauselData(carauselData);
+            this.prepareCarauselDotsData();
+        }
     }
 
     get CarauselOptions() {

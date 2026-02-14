@@ -32,9 +32,16 @@ utlOutletTable.BulkAdd = [
     {
         OutletID: 1,
         OutletName: 'General',
-        Description: 'This will include all the general type source details',
+        Description: 'Generally what I do',
         DateInserted: new Date('2025-12-29'),
         DateUpdated: new Date('2025-12-29')
+    },
+    {
+        OutletID: 2,
+        OutletName: 'Software Engineer',
+        Description: 'My work as a Software Engineer',
+        DateInserted: new Date('2026-02-14'),
+        DateUpdated: new Date('2026-02-14')
     }
 ];
 

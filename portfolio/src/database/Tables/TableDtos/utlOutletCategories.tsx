@@ -38,7 +38,7 @@ utlOutletCategoriesTable.BulkAdd = [
     },
     {
         OutletCategoriesID: 2,
-        CategoryName: 'Softare Engineering',
+        CategoryName: 'Software Engineering',
         Description: 'Software Engineering related categories are fall under this one',
         DateInserted: new Date('2026-01-14'),
         DateUpdated: new Date('2026-01-14')
