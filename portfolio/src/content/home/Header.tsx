@@ -5,7 +5,7 @@ import type { OutletCombinationsType } from './Home';
 import { useEffect, useState } from 'react';
 import { HomeAPI } from '../../controllers/HomeController';
 
-import NavBar, { type NavBarProps } from '../../components/NavBar/NavBar';
+import NavBar from '../../components/NavBar/NavBar';
 import { Carausel, CarauselContent, CarauselDots } from '../../components/Caraousel/Caraousel';
 import usePortfolioCollection from '../../components/Hooks/usePortfolioCollection';
 import { common } from '../../components/utils/common';
@@ -25,23 +25,6 @@ export type MainNavType = {
 //#region Collections
 async function carauselGet(idList: number[]) {
     return await HomeAPI.carauselGet(idList);
-}
-//#endregion
-
-//#region outer fns
-function prepareNavs(functions: {[key: string]: (sourceId: number) => void;}, names: OutletCombinationsType[]): NavBarProps['Items'] {
-    const preparedItems: NavBarProps['Items'] = [];
-    const filteredValues = names.filter((outlet, index, self) => {
-        return index === self.findIndex(o => o.Outlet === outlet.Outlet);
-    });
-    filteredValues.forEach((name) => {
-        preparedItems.push({
-            ID: name.OutletID,
-            name: name.Outlet,
-            onClick: functions[name.Outlet],
-        });
-    });
-    return preparedItems;
 }
 //#endregion
 
@@ -89,7 +72,7 @@ function CarauselHandler() {
     };
 
     useEffect(() => {
-        if(!carauselCollection.collection) carauselCollection.helpers.fetchCollection();
+        carauselCollection.helpers.doAnInitialFetch();
     }, [carauselCollection.collection, carauselCollection.helpers]);
 
     if(carauselCollection.collection && carauselCollection.collection.length) {
@@ -112,25 +95,24 @@ export default function Header(props: { OutletData: OutletCombinationsType[] }) 
   const { model: headerModel, helpers: headerHelpers } = usePortfolioModel<NavHeaderType>({ model: { LoadNavBar: false, Vision: '' } });
   const storage = useBaseStorage();
 
-  const navClickFnMapper = {
-    'Software Engineer': (sourceId: number) => {
+  const onMainNavItemClick = (sourceId: number) => {
         headerHelpers.binders.setToModel('LoadNavBar', true);
-        storage?.Push('SourceID', sourceId);
-        setTimeout(() => headerHelpers.binders.setToModel('LoadNavBar', false), 10000);
-    },
-    'Undergraduate': (sourceId: number) => {
-        headerHelpers.binders.setToModel('LoadNavBar', true);
-        storage?.Push('SourceID', sourceId);
-        setTimeout(() => headerHelpers.binders.setToModel('LoadNavBar', false), 10000);
-    },
-    'General': (sourceId: number) => {
-        headerHelpers.binders.setToModel('LoadNavBar', true);
-        storage?.Push('SourceID', sourceId);
-        setTimeout(() => headerHelpers.binders.setToModel('LoadNavBar', false), 10000);
-    },
-  };
+        storage?.pushes({
+            SourceID: sourceId,
+            MajorSourceIdsLoaded: {
+                isNavsLoaded: false,
+                isFocusedContentLoaded: false,
+                isBottomContentLoaded: false,
+            },
+        });
+    };
 
-  const navContentView = [<NavBar key={'main-header-nav'} DisableNavBar={headerModel.LoadNavBar} Items={prepareNavs(navClickFnMapper, props.OutletData)} />];
+    useEffect(() => {
+        const isLoaded = storage?.Pop('DisableSourceLoader');
+        if (isLoaded) headerHelpers.binders.setToModel('LoadNavBar', false);
+    }, [headerHelpers.binders, storage, storage?.Model.DisableSourceLoader]);
+
+  const navContentView = [<NavBar key={'main-header-nav'} DisableNavBar={headerModel.LoadNavBar} Items={props.OutletData} onClick={onMainNavItemClick} />];
 
   return <div className={TopStyles['header-wrapper']}>
         <CarauselHandler />

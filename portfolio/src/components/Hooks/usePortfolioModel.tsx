@@ -63,11 +63,16 @@ export function usePortfolioModel<T extends Record<string, unknown>>(props: Mode
     });
 
     const setToModel = <S extends keyof T>(key: S, value: T[S]) => {
-        dispatchModel({ type: 'set', key: key, value: value });
+        if(modelState[key] !== value)
+            dispatchModel({ type: 'set', key: key, value: value });
     };
 
     const setsToModel = (attributes: { [K in keyof T]?: T[K] }) => {
-        dispatchModel({ type: 'sets', attributes });
+        const attributesLength = Object.keys(attributes).length;
+        const changedModelAttributes = Object.keys(attributes).filter(key => modelState[key] !== attributes[key]);
+        if(changedModelAttributes.length > 0 && attributesLength === changedModelAttributes.length){
+            dispatchModel({ type: 'sets', attributes });
+        }
     };
 
     const hasModelChanged = useCallback((key?: keyof T): boolean => {

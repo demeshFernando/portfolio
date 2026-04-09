@@ -1,4 +1,5 @@
 import { useCallback, useReducer, useRef } from 'react';
+import { usePortfolioSilentModel } from './usePortfolioModel';
 
 type PortfolioCollectionProps<T extends Record<string, unknown>> = {
     collection: T[] | null;
@@ -56,6 +57,11 @@ function collectionReducer<T extends Record<string, unknown>>(state: T[] | null,
 
 export default function usePortfolioCollection<T extends Record<string, unknown>>(props: PortfolioCollectionProps<T>){
     const [collection, collectionDispatcher] = useReducer<T[] | null, [ActionsType<T>]>(collectionReducer, props.collection);
+    const silentModel = usePortfolioSilentModel({
+        model: {
+            IsInitialFetchHappened: false,
+        }
+    });
 
     const fetchFnRef = useRef(props.helperAttributes?.fetchFn);
     const afterFetchTrigRef = useRef(props.helperAttributes?.afterFetchTrig);
@@ -91,13 +97,18 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
             isCollectionLoading.current = false;
             if(!result.length) isCollectionEmpty.current = true;
 
+            // let's mark that the initial fetch already happenned
+            silentModel.binders.setToModel('IsInitialFetchHappened', true);
             if(afterFetchFn) afterFetchFn();
         } catch (E) {
             throw 'error found in fetching the collection ' + E;
-        } finally {
-            if(afterFetchFn) afterFetchFn();
         }
-    }, [cancelFetching]);
+    }, [cancelFetching, silentModel.binders]);
+
+    const doAnInitialFetch = useCallback((includeToCollection?: boolean) => {
+        if(!silentModel.binders.getValue('IsInitialFetchHappened'))
+            fetchCollection(includeToCollection);
+    }, [fetchCollection, silentModel.binders]);
 
     const add = useCallback((collection: T[]) => {
         collectionDispatcher({ type: 'add', attributes: collection });
@@ -115,7 +126,11 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
                 IsResultEmpty: isCollectionEmpty.current,
                 name: props.helperAttributes?.name
             },
+            collectionAttributes: {
+                IsInitialFetchHappened: silentModel.binders.getValue('IsInitialFetchHappened'),
+            },
             fetchCollection,
+            doAnInitialFetch,
             add,
             reset
         },
