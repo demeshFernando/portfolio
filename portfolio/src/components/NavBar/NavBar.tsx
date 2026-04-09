@@ -2,15 +2,13 @@ import NavStyles from './navbar.module.css';
 import { usePortfolioModel } from '../Hooks/usePortfolioModel';
 
 import Loader from '../Loader/Loader';
+import type { OutletCombinationsType } from '../../content/home/Home';
 
 //#region types
 export type NavBarProps = {
-    Items: {
-        ID: number;
-        name: string;
-        onClick: (sourceId: number) => void;
-    }[];
+    Items: OutletCombinationsType[];
     DisableNavBar: boolean;
+    onClick: (sourceId: number) => void;
 };
 type NavBarModelType = {
     ActiveIndex: number;
@@ -25,24 +23,24 @@ export default function NavBar(props: NavBarProps){
         },
     });
 
-    const onNavBarElClick = (elProps: { index: number, ID: number, navBarClickHandler: (sourceId: number) => void }) => {
+    const onNavBarElClick = (elProps: { index: number, ID: number }) => {
         if(elProps.ID > 0 && !props.DisableNavBar && elProps.index !== navBarModel.ActiveIndex) {
             helpers.binders.setToModel('ActiveIndex', elProps.index);
-            elProps.navBarClickHandler(elProps.ID);
+            props.onClick(elProps.ID);
         }
     };
 
     const generatedElement = props.Items.map((item, index) => {
         if(navBarModel.ActiveIndex === index) {
             return <div
-            key={item.ID}
-            onClick={() => onNavBarElClick({ index, ID: item.ID, navBarClickHandler: item.onClick })}
-            className={`${NavStyles['selectable']} ${NavStyles['indicator']}`}>{item.name}</div>;
+            key={item.OutletID}
+            onClick={() => onNavBarElClick({ index, ID: item.OutletID })}
+            className={`${NavStyles['selectable']} ${NavStyles['indicator']}`}>{item.Outlet}</div>;
         }
         return <div
-         key={item.ID}
-         onClick={() => onNavBarElClick({ index, ID: item.ID, navBarClickHandler: item.onClick })}
-         className={`${NavStyles['selectable']}`}>{item.name}</div>;
+         key={item.OutletID}
+         onClick={() => onNavBarElClick({ index, ID: item.OutletID })}
+         className={`${NavStyles['selectable']}`}>{item.Outlet}</div>;
     });
 
     let finalView = <div className={NavStyles['selectables']}>

@@ -32,9 +32,10 @@ export default function Home() {
 
     const outletCollection = usePortfolioCollection({ collection: null, helperAttributes: { fetchFn: getOutlets, name: 'Outlets' } });
     useEffect(() => {
-        if(!outletCollection.collection) outletCollection.helpers.fetchCollection();
+        outletCollection.helpers.doAnInitialFetch();
         if(sourceId) storage?.Push('SourceID', Number(sourceId));
-    }, [outletCollection, sourceId, storage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     let contentView = common.nullOrEmptyViewHolder(outletCollection.helpers.nullOrEmptyViewHolderAttributes);
     if(outletCollection.collection && outletCollection.collection.length) {
