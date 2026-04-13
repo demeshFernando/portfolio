@@ -4,6 +4,7 @@ import { configs } from './application.config';
 
 type ContextModelType = {
     SourceID: number;
+    NavID: number;
     DisableButtons: boolean;
     DisableMessageTitle: string;
     DisableSourceLoader: boolean;
@@ -35,6 +36,7 @@ export function BaseContextProvider(props: { children: ReactNode }){
     const { model: contextModel, silentModel: contextSilentModel } = usePortfolioModelWithSilent<ContextModelType, typeof configs>({
         model: {
             SourceID: 1,
+            NavID: 0,
             DisableButtons: false,
             DisableMessageTitle: 'This was disabled by the administration.',
             DisableSourceLoader: true,

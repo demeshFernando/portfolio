@@ -14,7 +14,6 @@ type MainHeaderPropsType = {
     RefreshKey: number;
     ActiveNavID: number;
     IsElementEnabled: boolean;
-    NavItems: HeaderModelType[] | null;
     onActiveElementChange: (elementID: number) => void;
 };
 
@@ -36,11 +35,7 @@ type ContactInformationType = {
 
 type MiddleSectionType = {
     IsStruck: boolean;
-    ActiveNavID: number;
     ElementEnableStatus: boolean;
-    Collection: HeaderModelType[] | null;
-
-    onActiveElementChange: (ID: number) => void;
 };
 
 type ContactButtonType = {
@@ -102,12 +97,17 @@ function MiddleSection(props: MiddleSectionType) {
             SourceID: 0,
         },
     });
+    const middleSectionModel = usePortfolioModel({
+        model: {
+            NavID: 0,
+        }
+    });
     const storage = useBaseStorage();
 
     //we have to disable the performing the button clicks
     const onNavElementClick = (ID: number) => {
-        if(props.ElementEnableStatus) {
-            props.onActiveElementChange(ID);
+        if(props.ElementEnableStatus && storage && storage.Pop('DisableSourceLoader')) {
+            storage.Push('NavID', ID);
         }
     };
 
@@ -121,16 +121,23 @@ function MiddleSection(props: MiddleSectionType) {
         helpers.fetchCollection();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [storage, storage?.Model.SourceID]);
+    // This use effect will trigger when navID initially got changed
+    useEffect(() => {
+        storage?.Push('NavID', middleSectionModel.model.NavID);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [middleSectionModel.model.NavID]);
 
     let innerContent = common.nullOrEmptyViewHolder(helpers.nullOrEmptyViewHolderAttributes);
 
     if(headerCollection && headerCollection.length) {
+        const activeNavId = storage?.Pop('NavID') || 0;
+        if(!activeNavId) middleSectionModel.helpers.binders.setToModel('NavID', headerCollection[0].NavID);
         innerContent = headerCollection.map((headerItem, index) => {
-            if(!props.ActiveNavID && !index) {
+            if(!activeNavId && !index) {
                 return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']} ${!props.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
-            } else if (props.ActiveNavID === headerItem.NavID) {
+            } else if (activeNavId === headerItem.NavID) {
                 return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']} ${!props.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>
                     <p className={ButtonStyles['header-element']}>{headerItem.Name}</p>
                 </div>;
@@ -232,10 +239,6 @@ export default function MainHeader(props: MainHeaderPropsType){
     }});
     const storage = useBaseStorage();
 
-    const onActiveNavItemChange = (elementID: number) => {
-        props.onActiveElementChange(elementID);
-    };
-
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
@@ -263,12 +266,8 @@ export default function MainHeader(props: MainHeaderPropsType){
             <div className={`${ButtonStyles.header}${mainHeaderModel.IsStruck ? ' ' + ButtonStyles.active : ''}`}>
                 <MiddleSection
                     key={props.RefreshKey}
-                    Collection={props.NavItems}
                     ElementEnableStatus={props.IsElementEnabled}
                     IsStruck={mainHeaderModel.IsStruck}
-                    ActiveNavID={props.ActiveNavID}
-
-                    onActiveElementChange={onActiveNavItemChange}
                 />
             </div>
             <div className={ButtonStyles['contact-wrapper']}>

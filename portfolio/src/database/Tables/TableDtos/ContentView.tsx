@@ -42,6 +42,11 @@ const ContentViewTable = new Table('ContentView', {
         DataType: 'bool',
         IsRequired: true
     },
+    SortOrder: {
+        ColumnName: 'SortOrder',
+        DataType: 'int',
+        IsRequired: true
+    },
     DateInserted: {
         ColumnName: 'DateInserted',
         DataType: 'dateTime',
@@ -60,6 +65,7 @@ ContentViewTable.BulkAdd = [
         OutletID: 1,
         NavID: 1,
         IsVisible: true,
+        SortOrder: 3,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04'),
     },
@@ -69,6 +75,7 @@ ContentViewTable.BulkAdd = [
         IsVisible: true,
         OutletID: 1,
         NavID: 1,
+        SortOrder: 2,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
     },
@@ -78,6 +85,7 @@ ContentViewTable.BulkAdd = [
         IsVisible: true,
         OutletID: 1,
         NavID: 1,
+        SortOrder: 1,
         DateInserted: new Date('2026-01-16'),
         DateUpdated: new Date('2026-01-16')
     }

@@ -22,11 +22,6 @@ const utlNavContentTable = new Table('utlNavContent', {
         DataType: 'bool',
         IsRequired: true
     },
-    SortOrder: {
-        ColumnName: 'SortOrder',
-        DataType: 'int',
-        IsRequired: true
-    },
     DateInserted: {
         ColumnName: 'DateInserted',
         DataType: 'dateTime',
@@ -43,7 +38,6 @@ utlNavContentTable.BulkAdd = [
         NavContentID: 1,
         Name: 'Work',
         IsActive: true,
-        SortOrder: 1,
         Description: 'This view will hold specifies to make the view suitable for the front end',
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
@@ -52,7 +46,6 @@ utlNavContentTable.BulkAdd = [
         NavContentID: 2,
         Name: 'Undergraduate',
         IsActive: true,
-        SortOrder: 2,
         Description: 'This view spcifies to make the view suitable for the undergraduate',
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
@@ -61,7 +54,6 @@ utlNavContentTable.BulkAdd = [
         NavContentID: 3,
         Name: 'School',
         IsActive: true,
-        SortOrder: 3,
         Description: 'This view specifies to make the view suitalbe for the Work related',
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')

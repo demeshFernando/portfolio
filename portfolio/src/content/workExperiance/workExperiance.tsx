@@ -514,7 +514,7 @@ function TechnologyView(props: {
     </>;
 }
 
-function BriefExperienceView(){
+function DetailedExperienceView(){
     const { model: experienceViewModel, silentModel } = usePortfolioModelWithSilent({
         model: {
             contentView: [<Loader key={0} />],
@@ -556,7 +556,7 @@ function BriefExperienceView(){
     return experienceViewModel.model.contentView;
 }
 
-function DetailedExperienceView() {
+function BriefExperienceView() {
     return <h1>Detailed Experience view</h1>;
 }
 

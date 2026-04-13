@@ -27,6 +27,11 @@ const OutletNavContentTable = new Table('OutletNavContent', {
             DeleteOnCascade: true
         },
     },
+    SortOrder: {
+        ColumnName: 'SortOrder',
+        DataType: 'int',
+        IsRequired: true,
+    },
     DateInserted: {
         ColumnName: 'DateInserted',
         DataType: 'dateTime',
@@ -43,6 +48,7 @@ OutletNavContentTable.BulkAdd = [
         OutletNavContentID: 1,
         OutletID: 1,
         NavID: 1,
+        SortOrder: 1,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
     },
@@ -50,6 +56,7 @@ OutletNavContentTable.BulkAdd = [
         OutletNavContentID: 2,
         OutletID: 1,
         NavID: 2,
+        SortOrder: 2,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
     },
@@ -57,6 +64,7 @@ OutletNavContentTable.BulkAdd = [
         OutletNavContentID: 3,
         OutletID: 1,
         NavID: 3,
+        SortOrder: 3,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
     }
