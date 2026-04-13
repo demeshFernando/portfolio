@@ -27,19 +27,19 @@ async function fetchOutlets(outletId: number, sourceId: number): Promise<Outlets
 // #endregion
 
 // #region Cmpnts
-function Outlet(props: { selectedNavID: number }){
+function Outlet(){
     const storage = useBaseStorage();
     const silentModel = usePortfolioSilentModel({
         model: {
-            Source: Number(storage?.Pop('SourceID')) || 1,
+            SourceID: 0,
             SelectedNavID: 0,
         }
     });
     const outletCollection = usePortfolioCollection({
         collection: null,
         helperAttributes: {
-            fetchFn: () => fetchOutlets(silentModel.binders.getValue('Source'), silentModel.binders.getValue('SelectedNavID')),
-            name: 'Outlets',
+            fetchFn: () => fetchOutlets(silentModel.binders.getValue('SourceID'), silentModel.binders.getValue('SelectedNavID')),
+            name: 'Contents',
             afterFetchTrig: () => {
                 // since new collection is being fetched we can make storage false
                 const storageLoadedState = storage?.Pop('MajorSourceIdsLoaded');
@@ -59,13 +59,16 @@ function Outlet(props: { selectedNavID: number }){
     useEffect(() => {
         outletCollection.helpers.doAnInitialFetch();
     }, [outletCollection.collection, outletCollection.helpers]);
+
+    // this will fetch the collection view when navID changed
     useEffect(() => {
-        if(silentModel.binders.getValue('SelectedNavID') == 0 || silentModel.binders.getValue('SelectedNavID') !== props.selectedNavID) {
-            silentModel.binders.setToModel('SelectedNavID', props.selectedNavID);
-            silentModel.silentModelHelper.neutrilizeSilentModel('SelectedNavID');
-            outletCollection.helpers.fetchCollection();
-        }
-    }, [outletCollection.helpers, props.selectedNavID, silentModel.binders, silentModel.silentModelHelper]);
+        silentModel.binders.setsToModel({
+            SourceID: storage?.Pop('SourceID'),
+            SelectedNavID: storage?.Pop('NavID'),
+        });
+        outletCollection.helpers.fetchCollection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [storage, storage?.Model.NavID, storage?.Model.SourceID]);
 
     let contentView = common.nullOrEmptyViewHolder(outletCollection.helpers.nullOrEmptyViewHolderAttributes);
 
@@ -77,7 +80,7 @@ function Outlet(props: { selectedNavID: number }){
                 case OutletMapper.Undergraduate:
                     return <UndergraduateLevel key={navItem.ContentViewID} />;
                 case OutletMapper.Work:
-                    return <WorkExperience key={navItem.ContentViewID}  SourceID={silentModel.binders.getValue('Source')} ViewType='brief' />;
+                    return <WorkExperience key={navItem.ContentViewID}  SourceID={silentModel.binders.getValue('SourceID')} ViewType='brief' />;
                 default:
                     return <div key={navItem.ContentViewID}></div>;
             }
@@ -144,9 +147,8 @@ export default function Body() {
             ActiveNavID={bodyModel.model.ActiveNavID}
             IsElementEnabled={true}
             onActiveElementChange={changeActiveNavElementID}
-            NavItems={navCollection.collection}
         />
-        <Outlet selectedNavID={bodyModel.model.ActiveNavID} />
+        <Outlet />
     </>;
 }
 // #endregion

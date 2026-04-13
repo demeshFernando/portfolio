@@ -25,7 +25,7 @@ export default async function NavHeadersGet(outletID: number): Promise<NavHeader
                 returnResult.push({
                     NavID: nav.NavContentID,
                     Name: nav.Name,
-                    SortOrder: nav.SortOrder
+                    SortOrder: outletNav.SortOrder
                 });
             }
         });

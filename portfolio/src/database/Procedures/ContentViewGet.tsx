@@ -18,7 +18,7 @@ export default async function ContentViewGet(SourceID: number, OutletID: number)
     const utlContentTable = (await Tables.utlContentView()).Pointer;
 
     const filteredContentView = contentViewTable.filter(content => content.OutletID === SourceID && content.NavID === OutletID && content.IsVisible);
-    const sortedFilteredContents = sort(filteredContentView, 'DateInserted');
+    const sortedFilteredContents = sort(filteredContentView, 'SortOrder');
     sortedFilteredContents.map(content => {
         const contentName = utlContentTable.filter(contentName => contentName.ContentViewID === content.ContentViewID)[0].ContentName;
         returnResult.push({
