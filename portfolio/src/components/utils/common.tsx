@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import Loader from '../Loader/Loader';
+import { format } from 'date-fns';
 
 type MultiPropsType<T extends Record<string ,unknown>, S extends keyof T> = {
     identifier: 'multi',
@@ -42,6 +43,10 @@ async function executeCollectionFetcher<T extends Record<string, unknown>>(fetch
     }
 }
 
+function formatDateOnly(value: Date): string {
+    return format(value, 'MMM dd, yyyy');
+}
+
 function isNumber(value: unknown): value is number {
     try {
         return !!Number(value);
@@ -77,5 +82,6 @@ export const common = {
     bindToModel,
     executeCollectionFetcher,
     isNumber,
-    nullOrEmptyViewHolder
+    nullOrEmptyViewHolder,
+    formatDateOnly
 };

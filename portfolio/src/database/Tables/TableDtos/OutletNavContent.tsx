@@ -47,7 +47,7 @@ OutletNavContentTable.BulkAdd = [
     {
         OutletNavContentID: 1,
         OutletID: 1,
-        NavID: 1,
+        NavID: 4,
         SortOrder: 1,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
@@ -55,7 +55,7 @@ OutletNavContentTable.BulkAdd = [
     {
         OutletNavContentID: 2,
         OutletID: 1,
-        NavID: 2,
+        NavID: 1,
         SortOrder: 2,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
@@ -63,10 +63,34 @@ OutletNavContentTable.BulkAdd = [
     {
         OutletNavContentID: 3,
         OutletID: 1,
-        NavID: 3,
+        NavID: 2,
         SortOrder: 3,
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
+    },
+    {
+        OutletNavContentID: 4,
+        OutletID: 2,
+        NavID: 1,
+        SortOrder: 1,
+        DateInserted: new Date('2026-04-13'),
+        DateUpdated: new Date('2026-04-13'),
+    },
+    {
+        OutletNavContentID: 5,
+        OutletID: 2,
+        NavID: 2,
+        SortOrder: 2,
+        DateInserted: new Date('2026-04-13'),
+        DateUpdated: new Date('2026-04-13'),
+    },
+    {
+        OutletNavContentID: 6,
+        OutletID: 2,
+        NavID: 3,
+        SortOrder: 3,
+        DateInserted: new Date('2026-04-13'),
+        DateUpdated: new Date('2026-04-13'),
     }
 ];
 

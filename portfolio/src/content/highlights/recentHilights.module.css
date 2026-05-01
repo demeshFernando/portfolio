@@ -1,0 +1,83 @@
+.card-overlay {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 100px;
+    margin-bottom: 50px;
+}
+
+.card {
+    background-color: white;
+    width: 300px;
+    height: 400px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 2px solid white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    position: relative;
+}
+
+.img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    transition: all 0.05 ease;
+}
+
+.card-content {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 10px 20px;
+    z-index: 1;
+    left: 16px;
+    right: 16px;
+    bottom: -50px;
+    transition: all 0.03s ease;
+}
+
+.completed-text, .inprogress-text, .other-paras {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.completed-text {
+    color: green;
+}
+
+.img:hover {
+    animation: bounce-card 0.5s forwards;
+}
+
+.card:hover {
+    animation: bounce-content 0.5s forwards;
+}
+
+@keyframes bounce-card {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes bounce-content {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.09);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}

@@ -51,9 +51,9 @@ organizationTable.BulkAdd = [
         OrganizationID: 2,
         OrganizationName: 'Vitalhub PVT. LTD.',
         DateJoined: new Date('2024-05-08'),
-        Description: '',
+        Description: 'VitalHub is a canada-based healthcare technology company that provides software solutions for health and human services organizations. Founded in 2010 and headquatered in Toronto. VitalHub develops products that support areas such electronic health records (EHR), patient flow and operational visibility, case management, care coordination, and worforce automation. its solutions are widely used by hospitals long-term care providers, community and social srevices, and mental health organizations across Canada, the UK, and other international markets.<br />The company focuses on improving clinical workflows, decision-making, and care outcomes through integrated, user-friendly digital platforms, and serves over 1,000 healthcare organizations globally. VitalHub is a publicly traded company (TSX: VHI) and follows a growth strategy that combines product innovation with strategic acquisitions in the health IT space.',
         DateInserted: new Date('2025-12-28'),
-        DateUpdated: new Date('2025-12-28')
+        DateUpdated: new Date('2026-04-14')
     }
 ];
 

@@ -131,7 +131,8 @@ function MiddleSection(props: MiddleSectionType) {
 
     if(headerCollection && headerCollection.length) {
         const activeNavId = storage?.Pop('NavID') || 0;
-        if(!activeNavId) middleSectionModel.helpers.binders.setToModel('NavID', headerCollection[0].NavID);
+        if(!activeNavId || activeNavId !== headerCollection[0].NavID)
+            middleSectionModel.helpers.binders.setToModel('NavID', headerCollection[0].NavID);
         innerContent = headerCollection.map((headerItem, index) => {
             if(!activeNavId && !index) {
                 return <div onClick={() => onNavElementClick(headerItem.NavID)} key={headerItem.NavID} className={`${ButtonStyles['header-element-overlay']} ${!props.IsStruck ? ButtonStyles['active-box-element'] : ButtonStyles['active-round-element']}`}>

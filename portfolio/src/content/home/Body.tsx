@@ -10,10 +10,12 @@ import MainHeader from '../../components/mainHeader/MainHeader';
 
 import { HomeAPI } from '../../controllers/HomeController';
 import { common } from '../../components/utils/common';
+import RecentHighlights from '../highlights/RecentHighlights';
 
 // #region Types & Collections
 type OutletsType = {
     ContentViewID: number;
+    ContentUtlViewID: number;
     ContentName: string;
 };
 
@@ -74,15 +76,17 @@ function Outlet(){
 
     if(outletCollection.collection && outletCollection.collection.length) {
         contentView = outletCollection.collection.map((navItem) => {
-            switch(navItem.ContentViewID) {
+            switch(navItem.ContentUtlViewID) {
                 case OutletMapper.School:
-                    return <div key={navItem.ContentViewID}></div>;
+                    return <div key={navItem.ContentUtlViewID}></div>;
                 case OutletMapper.Undergraduate:
-                    return <UndergraduateLevel key={navItem.ContentViewID} />;
+                    return <UndergraduateLevel key={navItem.ContentUtlViewID} />;
                 case OutletMapper.Work:
-                    return <WorkExperience key={navItem.ContentViewID}  SourceID={silentModel.binders.getValue('SourceID')} ViewType='brief' />;
+                    return <WorkExperience key={navItem.ContentUtlViewID}  SourceID={silentModel.binders.getValue('SourceID')} ViewType='brief' />;
+                case OutletMapper.Highlights:
+                    return <RecentHighlights key={navItem.ContentUtlViewID} />;
                 default:
-                    return <div key={navItem.ContentViewID}></div>;
+                    return <div key={navItem.ContentUtlViewID}></div>;
             }
         });
     }
