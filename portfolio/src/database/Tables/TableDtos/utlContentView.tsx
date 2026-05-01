@@ -49,6 +49,20 @@ utlContentViewTable.BulkAdd = [
         Description: 'This view specifies to make the view suitalbe for the Work related',
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
+    },
+    {
+        ContentViewID: 4,
+        ContentName: 'Contact',
+        Description: 'This view contains the contact details about me',
+        DateInserted: new Date('2026-04-13'),
+        DateUpdated: new Date('2026-04-13')
+    },
+    {
+        ContentViewID: 5,
+        ContentName: 'Recent Highlights',
+        Description: 'This view mostly contains my recent work',
+        DateInserted: new Date('2026-04-14'),
+        DateUpdated: new Date('2026-04-14'),
     }
 ];
 

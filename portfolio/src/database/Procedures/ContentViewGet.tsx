@@ -8,6 +8,7 @@ import { Tables } from '../Tables/tableExporter';
 
 type NavContentViewType = {
     ContentViewID: number;
+    ContentUtlViewID: number;
     ContentName: string;
 };
 
@@ -20,9 +21,10 @@ export default async function ContentViewGet(SourceID: number, OutletID: number)
     const filteredContentView = contentViewTable.filter(content => content.OutletID === SourceID && content.NavID === OutletID && content.IsVisible);
     const sortedFilteredContents = sort(filteredContentView, 'SortOrder');
     sortedFilteredContents.map(content => {
-        const contentName = utlContentTable.filter(contentName => contentName.ContentViewID === content.ContentViewID)[0].ContentName;
+        const contentName = utlContentTable.filter(contentName => contentName.ContentViewID === content.ContentUtlViewID)[0].ContentName;
         returnResult.push({
             ContentViewID: content.ContentViewID,
+            ContentUtlViewID: content.ContentUtlViewID,
             ContentName: contentName,
         });
     });

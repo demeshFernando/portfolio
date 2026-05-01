@@ -57,6 +57,14 @@ utlNavContentTable.BulkAdd = [
         Description: 'This view specifies to make the view suitalbe for the Work related',
         DateInserted: new Date('2026-01-04'),
         DateUpdated: new Date('2026-01-04')
+    },
+    {
+        NavContentID: 4,
+        Name: 'Brief',
+        IsActive: true,
+        Description: 'This nav contains a brief details about myself',
+        DateInserted: new Date('2026-04-13'),
+        DateUpdated: new Date('2026-04-13'),
     }
 ];
 
