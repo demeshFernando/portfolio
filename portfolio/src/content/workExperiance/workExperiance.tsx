@@ -1,13 +1,20 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, type JSX, type ReactNode } from 'react';
 import usePortfolioCollection from '../../components/Hooks/usePortfolioCollection';
 import workExperianceStyles from './workExperence.module.css';
-import { usePortfolioModelWithSilent } from '../../components/Hooks/usePortfolioModel';
-import { differenceInDays, format, isBefore } from 'date-fns';
+import briefExperienceStyles from './briefExperience.module.css';
+import { usePortfolioModel, usePortfolioModelWithSilent, usePortfolioSilentModel } from '../../components/Hooks/usePortfolioModel';
+import { differenceInDays, format, getYear, intervalToDuration, isAfter, isBefore } from 'date-fns';
 
 import HeaderText from '../../components/HeaderText/HeaderText';
 import H3Rotate from '../../components/RotationAnimation/Rotate';
 import Loader from '../../components/Loader/Loader';
 import { configs } from '../../components/utils/application.config';
+import { graduationPhoto } from '../highlights/dummyImg';
+import Button from '../../components/Button/PortfolioButton';
+import Icon from '../../components/portfolioIcon/Icon';
+import { common } from '../../components/utils/common';
+import TypeText from '../../components/TypeEffect/TypeText';
+import { FadeIn } from '../../components/Animations/FadeIn';
 
 //#region types
 type WorkExperiancePropsType = {
@@ -46,12 +53,46 @@ type CompanyFormulatedExperience = {
     Type: 'company';
     CompanyID: number;
 };
-type PositionFomulatedExperience = {
+type PositionFormulatedExperience = {
     Type: 'position';
     CompanyID: number;
     PositionID: number;
 }
-type FomulatedExperienceType = CompanyFormulatedExperience | PositionFomulatedExperience;
+type FormulatedExperienceType = CompanyFormulatedExperience | PositionFormulatedExperience;
+
+/*
+================================================================
+Brief experience related types
+================================================================
+*/
+
+type BriefExperienceOrganizationType = {
+    OrganizationID: number;
+    OrganizationName: string;
+    DateJoined: Date;
+    DateResigned?: Date;
+};
+
+type DetailedExperiencePropType = {
+    SelectedOrgID: number;
+};
+
+type DetailedBriefExperienceCardType = {
+    OrganizationID: number;
+    OrganizationName: string;
+    DateJoined: Date;
+    DateResigned?: Date;
+    PastPositions?: {
+        PositionID: number;
+        Position: string;
+        StartDate: Date;
+        EndDate?: Date;
+    }[];
+    Technologies?: {
+        TechnologyID: number;
+        Technology: string;
+    }[];
+};
 //#endregion
 
 //#region collections
@@ -112,14 +153,120 @@ const projects: ProjectsType[] = [
     }
 ];
 
+const ProjectBriefDetails: DetailedBriefExperienceCardType[] = [
+    {
+        OrganizationID: 1,
+        OrganizationName: 'Vitalhub Innovation lab',
+        DateJoined: new Date('2026-05-17'),
+        PastPositions: [
+            {
+                PositionID: 1,
+                Position: 'Trainee Software Engineer',
+                StartDate: new Date('2024-05-11')
+            },
+            {
+                PositionID: 2,
+                Position: 'Intern Software Engineer',
+                StartDate: new Date('2025-01-01')
+            }
+        ],
+        Technologies: [
+            {
+                TechnologyID: 1,
+                Technology: 'Web Development',
+            },
+            {
+                TechnologyID: 2,
+                Technology: 'C#',
+            },
+            {
+                TechnologyID: 3,
+                Technology: '.Net 8',
+            },
+            {
+                TechnologyID: 4,
+                Technology: 'ASP.Net',
+            },
+            {
+                TechnologyID: 5,
+                Technology: 'MSSQL',
+            }
+        ],
+    },
+    {
+        OrganizationID: 1,
+        OrganizationName: 'Breascia Grameen',
+        DateJoined: new Date('2026-05-17'),
+        PastPositions: [
+            {
+                PositionID: 1,
+                Position: 'Trainee Software Engineer',
+                StartDate: new Date('2024-05-11')
+            },
+            {
+                PositionID: 2,
+                Position: 'Intern Software Engineer',
+                StartDate: new Date('2025-01-01')
+            }
+        ],
+        Technologies: [
+            {
+                TechnologyID: 1,
+                Technology: 'Web Development',
+            },
+            {
+                TechnologyID: 2,
+                Technology: 'C#',
+            },
+            {
+                TechnologyID: 3,
+                Technology: '.Net 8',
+            },
+            {
+                TechnologyID: 4,
+                Technology: 'ASP.Net',
+            },
+            {
+                TechnologyID: 5,
+                Technology: 'MSSQL',
+            }
+        ],
+    }
+];
+
+const organization: BriefExperienceOrganizationType[] = [
+    {
+        OrganizationID: 1,
+        OrganizationName: 'Brescia Grameen',
+        DateJoined: new Date('2025-03-04'),
+        DateResigned: new Date('2026-03-23'),
+    },
+    {
+        OrganizationID: 2,
+        OrganizationName: 'Vitahub Innovation lab',
+        DateJoined: new Date('2026-05-21'),
+    }
+];
+
 async function fetchBriefExperiences(): Promise<WorkExperienceType[]> {
     return workExperience;
 }
 
 async function fetchProjects(experienceID: number): Promise<ProjectsType[]> {
-    if(experienceID === 1) {
+    if (experienceID === 1) {
         return projects;
     } else return projects;
+}
+
+async function fetchBriefExperienceOrganizations(): Promise<BriefExperienceOrganizationType[]> {
+    return organization;
+}
+
+async function fetchDetailedBriefProjectView(organizationId: number): Promise<DetailedBriefExperienceCardType> {
+    if (organizationId === 1)
+        return ProjectBriefDetails[0];
+
+    else return ProjectBriefDetails[1];
 }
 //#endregion
 
@@ -134,7 +281,7 @@ class Experience {
     }[] | null = null;
 
     constructor(experiences: WorkExperienceType[] | null) {
-        if(experiences) this.prepareExperiences(experiences);
+        if (experiences) this.prepareExperiences(experiences);
     }
 
     get preparedExperience() {
@@ -142,17 +289,17 @@ class Experience {
     }
 
     get groupedExperience(): Record<string, ExperienceViewTypeProps[]> {
-        if(!this.groupedExperiences) {
+        if (!this.groupedExperiences) {
             this.setGroupedExperience();
             return this.groupedExperiences!;
         } else return this.groupedExperiences!;
     }
 
     getTechnologies(technology: string, technologyIds: string) {
-        const preparedTechnology: {ID: number, Technology: string}[] = [];
+        const preparedTechnology: { ID: number, Technology: string }[] = [];
         const technologies = technology.split(',');
         const Ids = technologyIds.split(',');
-        if(technologies.length === Ids.length) {
+        if (technologies.length === Ids.length) {
             technologies.map((technology, index) => {
                 preparedTechnology.push({
                     ID: Number(Ids[index]),
@@ -164,19 +311,19 @@ class Experience {
         return preparedTechnology;
     }
 
-    getFormulatedExperiences(attributes: FomulatedExperienceType): string {
-        if(!this.experiences) return '';
-        if(!this.experienceCount) this.calculateExperience();
+    getFormulatedExperiences(attributes: FormulatedExperienceType): string {
+        if (!this.experiences) return '';
+        if (!this.experienceCount) this.calculateExperience();
 
         //now let's calcuate the experience we have
         const companyIndex = this.experienceCount!.findIndex(item => item.CompanyID === attributes.CompanyID);
-        if(attributes.Type === 'company' && companyIndex >= 0) {
+        if (attributes.Type === 'company' && companyIndex >= 0) {
             return this.experienceInMonthsAndYears(this.experienceCount![companyIndex].CompanyExperience);
         } else if (attributes.Type === 'position' && companyIndex >= 0 && this.experienceCount![companyIndex].ProjectwiseExperience[attributes.PositionID]) {
             const company = this.experiences.filter(com => com.PositionID === attributes.PositionID);
             const fomulatedExperience = this.experienceInMonthsAndYears(this.experienceCount![companyIndex].ProjectwiseExperience[attributes.PositionID]);
 
-            if(company[0].EndDate) {
+            if (company[0].EndDate) {
                 return fomulatedExperience;
             }
             return fomulatedExperience + ' - Present';
@@ -188,12 +335,12 @@ class Experience {
         // first we have to find the respective experience
         let foundIndex = -1;
         this.experiences.map((experience, index) => {
-            if(experience.ExperienceID === ExperienceID) {
+            if (experience.ExperienceID === ExperienceID) {
                 foundIndex = index;
             }
         });
 
-        if(this.experiences && foundIndex > -1 && fetchedProjects) {
+        if (this.experiences && foundIndex > -1 && fetchedProjects) {
             this.experiences[foundIndex].Projects = fetchedProjects;
         }
     }
@@ -212,8 +359,8 @@ class Experience {
         this.groupedExperiences = null;
     }
 
-    private setGroupedExperience(){
-        if(!this.groupedExperiences) {
+    private setGroupedExperience() {
+        if (!this.groupedExperiences) {
             const groupedItems = this.experiences.reduce((acc, item) => {
                 (acc[item.CompanyID] = acc[item.CompanyID] || []).push(item);
                 return acc;
@@ -223,15 +370,15 @@ class Experience {
     }
 
     private calculateExperience() {
-        if(this.experiences) {
+        if (this.experiences) {
             const preparedExperienceCounts: typeof this.experienceCount = [];
 
             this.experiences.forEach(experience => {
                 const companyIndex = preparedExperienceCounts.findIndex(item => item.CompanyID === experience.CompanyID);
-                if(experience.EndDate) {
-                    if(isBefore(new Date(experience.StartDate), new Date(experience.EndDate))) {
+                if (experience.EndDate) {
+                    if (isBefore(new Date(experience.StartDate), new Date(experience.EndDate))) {
                         const dateDifferences = differenceInDays(experience.EndDate, experience.StartDate);
-                        if(companyIndex >= 0) {
+                        if (companyIndex >= 0) {
                             preparedExperienceCounts[companyIndex].CompanyExperience += dateDifferences;
                             // now we have to update the positions as well
                             const prevPositionCount = preparedExperienceCounts[companyIndex].ProjectwiseExperience[experience.PositionID] || 0;
@@ -248,9 +395,9 @@ class Experience {
                     }
                 } else {
                     const dateDifferences = differenceInDays(new Date(), experience.StartDate);
-                    if(companyIndex >= 0) {
+                    if (companyIndex >= 0) {
                         preparedExperienceCounts[companyIndex].CompanyExperience += dateDifferences;
-                        if(preparedExperienceCounts[companyIndex].ProjectwiseExperience[experience.PositionID]) {
+                        if (preparedExperienceCounts[companyIndex].ProjectwiseExperience[experience.PositionID]) {
                             preparedExperienceCounts[companyIndex].ProjectwiseExperience[experience.PositionID] += dateDifferences;
                         }
                     } else {
@@ -270,11 +417,11 @@ class Experience {
     }
 
     private experienceInMonthsAndYears(experienceInDays: number): string {
-        if(experienceInDays < 30) return `${experienceInDays} Days`;
+        if (experienceInDays < 30) return `${experienceInDays} Days`;
         else if (experienceInDays < 360) {
             return Math.floor(experienceInDays / 30) + ' Months';
         } else {
-            if(experienceInDays % 360 < 150) {
+            if (experienceInDays % 360 < 150) {
                 const result = Math.floor(experienceInDays / 360);
                 return result === 1 ? result + ' Year' : result + ' Years';
             } else {
@@ -282,21 +429,135 @@ class Experience {
                 const monthsCount = Math.floor((experienceInDays % 360) / 30);
                 let returnValue = yearsCount + '';
 
-                if(yearsCount === 1) returnValue += ' Year';
+                if (yearsCount === 1) returnValue += ' Year';
                 else returnValue += ' Years';
 
                 returnValue += ' And ' + monthsCount;
-                if(monthsCount === 1) returnValue += ' Month';
+                if (monthsCount === 1) returnValue += ' Month';
                 else returnValue += ' Months';
                 return returnValue;
             }
         }
     }
 }
+
+class BriefExperience {
+    private selectedPrevOrgId: number = 0;
+
+    set selectedOrgId(orgId: number) {
+        this.selectedPrevOrgId = orgId;
+    }
+    get selectedOrgId() {
+        return this.selectedPrevOrgId;
+    }
+
+    prepareExperiences(experiences: BriefExperienceOrganizationType[]): {
+        OrganizationID: number;
+        OrganizationName: string;
+        FormattedYear: string;
+    }[] {
+        const preparedExperiences = experiences.map(experience => {
+            const startYearPart = getYear(experience.DateJoined);
+            let endYear = null;
+            if (experience.DateResigned) endYear = getYear(experience.DateResigned);
+
+            if (endYear) {
+                return {
+                    OrganizationID: experience.OrganizationID,
+                    OrganizationName: experience.OrganizationName,
+                    FormattedYear: `${startYearPart} - ${endYear}`,
+                };
+            } else {
+                return {
+                    OrganizationID: experience.OrganizationID,
+                    OrganizationName: experience.OrganizationName,
+                    FormattedYear: `${startYearPart}`,
+                };
+            }
+        });
+        return preparedExperiences;
+    }
+
+    getCurrentPosition(positions: DetailedBriefExperienceCardType['PastPositions']): string {
+        if (positions) {
+            return positions[this.getLatestPositionIndex(positions)].Position;
+        }
+        return '';
+    }
+
+    getCurrentPositionDatePeriod(positions: DetailedBriefExperienceCardType['PastPositions']): string {
+        if (positions) {
+            const latestPositionIndex = this.getLatestPositionIndex(positions);
+            const positionObject = positions[latestPositionIndex];
+
+            // if the object has an end date
+            if (positionObject.EndDate && isAfter(positionObject.StartDate, positionObject.EndDate)) {
+                // let's get the difference interval
+                const differenceInterval = intervalToDuration({
+                    start: positionObject.StartDate,
+                    end: positionObject.EndDate
+                });
+
+                //if the difference is in years
+                if (differenceInterval.years && differenceInterval.years > 1) {
+                    return `${getYear(positionObject.StartDate)} - ${getYear(positionObject.EndDate)}`;
+                }
+
+                //if the difference is in months
+                if (differenceInterval.years && differenceInterval.years <= 1) {
+                    return `${format(positionObject.StartDate, 'MMM')}, ${getYear(positionObject.StartDate)} - ${format(positionObject.EndDate, 'MMM')}`;
+                }
+
+                // but only days left
+                if (differenceInterval.days && differenceInterval.days < 31) {
+                    return 'Only few days last long';
+                }
+            }
+
+            // if the object has no end date
+            // this means the still available in that position
+            else {
+                //let's get the difference interval
+                const differenceInterval = intervalToDuration({
+                    start: positionObject.StartDate,
+                    end: new Date(),
+                });
+
+                // if there is a years difference
+                if (differenceInterval.years && differenceInterval.years > 1) {
+                    return `${getYear(positionObject.StartDate)} - Present`;
+                }
+
+                //if the difference is in months
+                if (differenceInterval.years && differenceInterval.years <= 1) {
+                    return `${format(positionObject.StartDate, 'MMM')}, ${getYear(positionObject.StartDate)} - Present`;
+                }
+
+                // but only days left
+                if (differenceInterval.days && differenceInterval.days < 31) {
+                    return 'Just Joined';
+                }
+            }
+        }
+        return new Date() + '';
+    }
+
+    private getLatestPositionIndex(positions: DetailedBriefExperienceCardType['PastPositions']): number {
+        if (positions) {
+            let latestPositionIndex = 0;
+            positions.map((position, index) => {
+                if (positions[latestPositionIndex].StartDate < position.StartDate) latestPositionIndex = index;
+            });
+
+            return latestPositionIndex;
+        }
+        return 0;
+    }
+}
 //#endregion
 
 //#region outer functions
-async function prepareInitialExperianceView(experiences: Experience){
+async function prepareInitialExperianceView(experiences: Experience) {
     let previouslyUsedCompanyName: string = '';
     return experiences.preparedExperience.map((experience, index) => {
         const contentView = <div className={`${workExperianceStyles.company} ${workExperianceStyles['left-aligned']}`} key={experience.ExperienceID}>
@@ -313,8 +574,8 @@ async function prepareInitialExperianceView(experiences: Experience){
                 </div>
             </div>
             {((experiences.preparedExperience[index + 1] &&
-             experiences.preparedExperience[index + 1].CompanyName !== experience.CompanyName &&
-             previouslyUsedCompanyName) || (!experiences.preparedExperience[index + 1])) &&
+                experiences.preparedExperience[index + 1].CompanyName !== experience.CompanyName &&
+                previouslyUsedCompanyName) || (!experiences.preparedExperience[index + 1])) &&
                 <div className={workExperianceStyles['technology-brief']}>
                     <div className={workExperianceStyles['bullet-with-line']}></div>
                     <div className={workExperianceStyles.position}>
@@ -341,9 +602,9 @@ function BulletLinings(props: {
 }) {
     // if there are many items to the selected company
     // then we have to add values
-    if(props.groupedExperiences[props.experience.CompanyID].length > 1) {
+    if (props.groupedExperiences[props.experience.CompanyID].length > 1) {
         //if the considering one has more upcoming ones
-        if(props.groupedExperiences[props.experience.CompanyID].findIndex(item => item.PositionID === props.experience.PositionID)
+        if (props.groupedExperiences[props.experience.CompanyID].findIndex(item => item.PositionID === props.experience.PositionID)
             < props.groupedExperiences[props.experience.CompanyID].length - 1) {
             return <div className={workExperianceStyles['bullet-with-line']}>
                 <div className={workExperianceStyles.bullet}></div>
@@ -368,11 +629,11 @@ function CompanyName(props: {
 }) {
     const formulatedExperience = props.experiences.getFormulatedExperiences({ Type: 'company', CompanyID: props.experience.CompanyID });
     let modifiedCompanyName = props.experience.CompanyName;
-    if(formulatedExperience){
+    if (formulatedExperience) {
         modifiedCompanyName += '(' + formulatedExperience + ')';
     }
 
-    if(props.experience.CompanyID && props.experience.CompanyName && props.experience.LogoImg) {
+    if (props.experience.CompanyID && props.experience.CompanyName && props.experience.LogoImg) {
         return <div className={workExperianceStyles['company-header']}>
             <div className={workExperianceStyles['company-logo']}></div>
             <h2>{modifiedCompanyName}</h2>
@@ -394,23 +655,23 @@ function PositionName(props: {
     const fomulatedPosition = props.experiences.getFormulatedExperiences({ Type: 'position', CompanyID: props.experience.CompanyID, PositionID: props.experience.PositionID });
     let modifiedPositionName = props.experience.Position;
 
-    if(fomulatedPosition) {
+    if (fomulatedPosition) {
         modifiedPositionName += '(' + fomulatedPosition + ')';
     }
     return <h3>{modifiedPositionName}</h3>;
 }
 
-function StartEndTimeView(props: { experience: ExperienceViewTypeProps }){
+function StartEndTimeView(props: { experience: ExperienceViewTypeProps }) {
     const startDate = format(props.experience.StartDate, configs.DateFormat);
     let endDate = null;
     let view = 'Started on ';
 
-    if(props.experience.EndDate) {
+    if (props.experience.EndDate) {
         endDate = format(props.experience.EndDate, configs.DateFormat);
     }
 
     // if there are no end dates
-    if(!endDate) {
+    if (!endDate) {
         view += startDate + ' - Present';
     } else {
         view = 'From ' + startDate + ', To ' + endDate;
@@ -425,7 +686,7 @@ function BriefProjectView(props: {
 }) {
     const { model, silentModel } = usePortfolioModelWithSilent({
         model: {
-            ContentView: <Loader  color='#112C11' size={25} />,
+            ContentView: <Loader color='#112C11' size={25} />,
             FetchProjects: false,
         },
         silentModel: {
@@ -460,7 +721,7 @@ function BriefProjectView(props: {
     };
 
     const triggerOnOpenClick = () => {
-        if(props.experience.Projects) {
+        if (props.experience.Projects) {
             // we have to create the view since the project has the view
             const View = createProjectView(props.experience.Projects);
             model.helpers.binders.setToModel('ContentView', <div className={workExperianceStyles['project-details']}>
@@ -474,14 +735,14 @@ function BriefProjectView(props: {
     };
 
     useEffect(() => {
-        if(silentModel.silentModelHelper.hasSilentModelChanged('ExperienceID') && model.model.FetchProjects) {
+        if (silentModel.silentModelHelper.hasSilentModelChanged('ExperienceID') && model.model.FetchProjects) {
             projectHelpers.fetchCollection();
             silentModel.silentModelHelper.neutrilizeSilentModel('ExperienceID');
         }
     }, [model.model.FetchProjects, projectHelpers, silentModel.silentModelHelper]);
 
     useEffect(() => {
-        if(projects && projects.length > 0) {
+        if (projects && projects.length > 0) {
             const View = createProjectView(projects);
             model.helpers.binders.setToModel('ContentView', <div className={workExperianceStyles['project-details']}>
                 {View}
@@ -514,7 +775,129 @@ function TechnologyView(props: {
     </>;
 }
 
-function DetailedExperienceView(){
+/*
+=============================================================================
+Brief experience views
+=============================================================================
+*/
+
+function Positions(props: {
+    positions: DetailedBriefExperienceCardType['PastPositions'];
+}) {
+    if (!props.positions) return <></>;
+
+    const positions = props.positions.map(position => {
+        const dateDifference = common.pronounceDate(position.StartDate, position.EndDate);
+        if (dateDifference) {
+            return <li key={position.PositionID}>{`${position.Position} (${dateDifference})`}</li>;
+        }
+        return <li key={position.PositionID}>{`${position.Position}`}</li>;
+    });
+    return <div className={briefExperienceStyles['positions-layout']}>
+        <h4>Past Positions</h4>
+        <div className={briefExperienceStyles['positions-list']}>
+            <ul>{positions}</ul>
+        </div>
+    </div>;
+}
+
+function Technologies(props: {
+    technologies: DetailedBriefExperienceCardType['Technologies']
+}) {
+    if (!props.technologies) return <></>;
+
+    const technology = props.technologies.map(technology => {
+        return <li key={technology.TechnologyID} className={briefExperienceStyles['technology-li']}>{technology.Technology}</li>;
+    });
+    return <div className={briefExperienceStyles['technologies-layout']}>
+        <h4>Technologies</h4>
+        <div className={briefExperienceStyles['technologies-list']}>
+            <ul className={briefExperienceStyles['technology-ul']}>
+                {technology}
+            </ul>
+        </div>
+    </div>;
+}
+
+function SelectedBriefExperienceView(props: DetailedExperiencePropType) {
+    const detailedExperienceSilentModel = usePortfolioSilentModel({
+        model: {
+            SelectedOrgID: 0,
+            BriefExperience: new BriefExperience(),
+        }
+    });
+    const detailedExperienceModel = usePortfolioModel({
+        model: {
+            OrganizationID: 0,
+            OrganizationName: '',
+            DateJoined: new Date(),
+        },
+        helperAttributes: {
+            fetchFn: () => fetchDetailedBriefProjectView(detailedExperienceSilentModel.binders.getValue('SelectedOrgID')),
+        }
+    });
+
+    useEffect(() => {
+        detailedExperienceSilentModel.binders.setToModel('SelectedOrgID', props.SelectedOrgID);
+        detailedExperienceModel.helpers.doAnInitialFetch();
+    }, [detailedExperienceSilentModel.binders, detailedExperienceModel.helpers, props.SelectedOrgID]);
+
+    if (!detailedExperienceModel.model.OrganizationID) {
+        return common.nullOrEmptyViewHolder(detailedExperienceModel.helpers.nullOrEmptyViewHolderAttributes);
+    }
+
+    return <div className={briefExperienceStyles['current-view']}>
+        <div className={briefExperienceStyles['organization-pic']}>
+            <img className={briefExperienceStyles.img} src={graduationPhoto} alt="" />
+        </div>
+        <div className={briefExperienceStyles['organization-desc']}>
+            <div className={briefExperienceStyles.details}>
+                <TypeText Text={detailedExperienceModel.model.OrganizationName} Font='h1' />
+                <h3>
+                    <FadeIn
+                        Text={detailedExperienceSilentModel.binders.getValue('BriefExperience').getCurrentPosition(detailedExperienceModel.model.PastPositions)}
+                    />
+                </h3>
+                <h3>
+                    <FadeIn
+                        Text={detailedExperienceSilentModel.binders.getValue('BriefExperience').getCurrentPositionDatePeriod(detailedExperienceModel.model.PastPositions)}
+                    />
+                </h3>
+                <Positions positions={detailedExperienceModel.model.PastPositions} />
+                <Technologies technologies={detailedExperienceModel.model.Technologies} />
+            </div>
+            <div className={briefExperienceStyles['show-more']}>
+                <div className={briefExperienceStyles['browse-icon']}><Icon icon='Browse' /></div>
+                <Button Type='link' OnButtonClick={() => alert('clicked')} />
+            </div>
+        </div>
+    </div>;
+}
+
+function ExperienceTileView(props: {
+    SelectedOrgID: number;
+    TileView: {
+        OrganizationID: number;
+        OrganizationName: string;
+        FormattedYear: string;
+    };
+    OnTileClick: (orgId: number) => void;
+}) {
+    const onTileClick = (selectedOrganizationId: number) => props.OnTileClick(selectedOrganizationId);
+    if (props.SelectedOrgID === props.TileView.OrganizationID) {
+        return <div onClick={() => onTileClick(props.TileView.OrganizationID)} className={`${briefExperienceStyles['experience-card']} ${briefExperienceStyles.selected}`}>
+            <h3>{props.TileView.OrganizationName}</h3>
+            <p>{props.TileView.FormattedYear}</p>
+        </div>;
+    } else {
+        return <div onClick={() => onTileClick(props.TileView.OrganizationID)} className={briefExperienceStyles['experience-card']}>
+            <h3>{props.TileView.OrganizationName}</h3>
+            <p>{props.TileView.FormattedYear}</p>
+        </div>;
+    }
+}
+
+function DetailedExperienceView() {
     const { model: experienceViewModel, silentModel } = usePortfolioModelWithSilent({
         model: {
             contentView: [<Loader key={0} />],
@@ -538,13 +921,13 @@ function DetailedExperienceView(){
     this use effect is responsible for fetching brief experiences whenever the system loaded
     */
     useEffect(() => {
-        if(!workExperiences) workExperienceHelpers.fetchCollection();
+        if (!workExperiences) workExperienceHelpers.fetchCollection();
     }, [workExperienceHelpers, workExperiences]);
     useEffect(() => {
-        if(!silentModel.binders.getValue('IsInitialContentViewCreated') && workExperiences && workExperiences.length > 0) {
+        if (!silentModel.binders.getValue('IsInitialContentViewCreated') && workExperiences && workExperiences.length > 0) {
             silentModel.binders.setToModel('Experiences', new Experience(workExperiences));
 
-            const createContentView = async() => {
+            const createContentView = async () => {
                 const result = await prepareInitialExperianceView(silentModel.binders.getValue('Experiences'));
                 experienceViewModel.helpers.binders.setToModel('contentView', result);
             };
@@ -557,16 +940,113 @@ function DetailedExperienceView(){
 }
 
 function BriefExperienceView() {
-    return <h1>Detailed Experience view</h1>;
-}
+    const experiencesSilentModel = usePortfolioSilentModel({
+        model: {
+            BriefExperiences: new BriefExperience(),
+            SelectedExperienceTimeOut: -1,
+        },
+    });
+    const experienceModel = usePortfolioModel({
+        model: {
+            SelectedTileID: 0,
+            SelectedTileKey: 1,
+            SelectedTileDetail: <div className={`${briefExperienceStyles['current-view']} ${briefExperienceStyles['current-null-view']}`}>
+                <Loader color='#112C11' size={25} />
+            </div>,
+        },
+    });
+    const experiencesCollection = usePortfolioCollection({
+        collection: null,
+        helperAttributes: {
+            name: 'Experiences',
+            fetchFn: fetchBriefExperienceOrganizations,
+            afterFetchTrig: (collection) => {
+                experienceModel.helpers.binders.setToModel('SelectedTileID', collection[0].OrganizationID);
+            },
+        }
+    });
 
+    const onSelectedTileOrgIDChanged = (orgId: number) => {
+        if (experienceModel.model.SelectedTileID != orgId) {
+            let prevKey = experienceModel.model.SelectedTileKey;
+            experienceModel.helpers.binders.setsToModel({
+                SelectedTileKey: ++prevKey,
+                SelectedTileID: orgId,
+            });
+        }
+    };
+
+    const loadSelectedOrg = () => {
+        // only if the prevOrg is changed we have to load them
+        if (experiencesSilentModel.binders.getValue('BriefExperiences').selectedOrgId != experienceModel.model.SelectedTileID) {
+            experiencesSilentModel.binders.getValue('BriefExperiences').selectedOrgId = experienceModel.model.SelectedTileID;
+            const selectedOrgId = experiencesSilentModel.binders.getValue('BriefExperiences').selectedOrgId;
+
+            experienceModel.helpers.binders.setToModel('SelectedTileDetail', <SelectedBriefExperienceView key={experienceModel.model.SelectedTileKey} SelectedOrgID={selectedOrgId} />);
+        }
+        //clearing the timeout
+        if (experiencesSilentModel.binders.getValue('SelectedExperienceTimeOut') > -1) {
+            clearTimeout(experiencesSilentModel.binders.getValue('SelectedExperienceTimeOut'));
+        }
+    };
+
+    // we have to fetch the experiences first
+    useEffect(() => {
+        experiencesCollection.helpers.doAnInitialFetch();
+    }, [experiencesCollection.helpers]);
+
+    if (experiencesCollection.collection && experiencesCollection.collection.length > 0) {
+        const briefExperience = experiencesSilentModel.binders.getValue('BriefExperiences').prepareExperiences(experiencesCollection.collection);
+
+        let tempTileView: JSX.Element[] = [];
+        const view: JSX.Element[] = [];
+        briefExperience.map((experience, index) => {
+            tempTileView.push(
+                <ExperienceTileView SelectedOrgID={experienceModel.model.SelectedTileID} TileView={experience} OnTileClick={onSelectedTileOrgIDChanged} />
+            );
+
+            if (briefExperience.length > index + 1) {
+                tempTileView.push(
+                    <div className={briefExperienceStyles.border}></div>
+                );
+            }
+
+            // this condition make sure that the row class will only generate when there are three batches of experiences
+            if (((index + 1) % 3 === 0) || (briefExperience.length === (index + 1))) {
+                const finalRow = <div key={index} className={briefExperienceStyles['experience-row']}>
+                    {tempTileView}
+                </div>;
+
+                tempTileView = [];
+
+                // right after the above changes we have to load
+                // the organization
+                const timeOut = setTimeout(loadSelectedOrg, 500);
+                experiencesSilentModel.binders.setToModel('SelectedExperienceTimeOut', timeOut);
+                view.push(finalRow);
+            }
+        });
+
+        return <div className={briefExperienceStyles.layout}>
+            {experienceModel.model.SelectedTileDetail}
+            <div className={briefExperienceStyles['experiences-list']}>
+                {view}
+            </div>
+        </div>;
+    }
+
+    return common.nullOrEmptyViewHolder(experiencesCollection.helpers.nullOrEmptyViewHolderAttributes);
+}
+// #endregion
+
+// #region Export view
 export default function WorkExperience(props: WorkExperiancePropsType) {
-    if(props.ViewType === 'brief') {
+    if (props.ViewType === 'brief') {
         return <>
-        <HeaderText title='Work Experience' />
-        <div className={workExperianceStyles['brief-exp-overlay']}>
-            <BriefExperienceView />
-        </div>
+            <HeaderText title='Work Experience' alignment='middle' />
+            <div className={workExperianceStyles['brief-exp-overlay']}>
+                <BriefExperienceView />
+            </div>
         </>;
     }
     return <>
