@@ -7,7 +7,6 @@ import { differenceInDays, format, getYear, intervalToDuration, isAfter, isBefor
 
 import HeaderText from '../../components/HeaderText/HeaderText';
 import H3Rotate from '../../components/RotationAnimation/Rotate';
-import Loader from '../../components/Loader/Loader';
 import { configs } from '../../components/utils/application.config';
 import { graduationPhoto } from '../highlights/dummyImg';
 import Button from '../../components/Button/PortfolioButton';
@@ -15,6 +14,7 @@ import Icon from '../../components/portfolioIcon/Icon';
 import { common } from '../../components/utils/common';
 import TypeText from '../../components/TypeEffect/TypeText';
 import { FadeIn } from '../../components/Animations/FadeIn';
+import { CommonLoader } from '../../components/utils/CommonCmpnts';
 
 //#region types
 type WorkExperiancePropsType = {
@@ -686,7 +686,7 @@ function BriefProjectView(props: {
 }) {
     const { model, silentModel } = usePortfolioModelWithSilent({
         model: {
-            ContentView: <Loader color='#112C11' size={25} />,
+            ContentView: <CommonLoader color='dark' size='small' />,
             FetchProjects: false,
         },
         silentModel: {
@@ -900,7 +900,7 @@ function ExperienceTileView(props: {
 function DetailedExperienceView() {
     const { model: experienceViewModel, silentModel } = usePortfolioModelWithSilent({
         model: {
-            contentView: [<Loader key={0} />],
+            contentView: [<CommonLoader key={0} />],
         },
         silentModel: {
             SelectedExperienceID: 0,
@@ -951,7 +951,7 @@ function BriefExperienceView() {
             SelectedTileID: 0,
             SelectedTileKey: 1,
             SelectedTileDetail: <div className={`${briefExperienceStyles['current-view']} ${briefExperienceStyles['current-null-view']}`}>
-                <Loader color='#112C11' size={25} />
+                <CommonLoader color='dark' size='small' />
             </div>,
         },
     });

@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
-import Loader from '../Loader/Loader';
 import { format, intervalToDuration, isAfter } from 'date-fns';
 import { configs } from './application.config';
+import { CommonLoader } from './CommonCmpnts';
 
 type MultiPropsType<T extends Record<string, unknown>, S extends keyof T> = {
     identifier: 'multi',
@@ -142,7 +142,7 @@ function nullOrEmptyViewHolder(state: {
     name?: string;
 }, overrideMessage?: string): JSX.Element[] {
     //if the state is in loading
-    if (state.IsLoading) return [<Loader key={0} />];
+    if (state.IsLoading) return [<CommonLoader key={0} />];
     if (!state.IsLoading && state.IsResultEmpty) {
         if (overrideMessage) {
             return [
