@@ -1,16 +1,20 @@
 import {
     faPhone,
     faEnvelope,
-    faAngleDown
+    faAngleDown,
+    faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-    faLinkedin
+    faLinkedin,
+    faFirefoxBrowser,
 } from '@fortawesome/free-brands-svg-icons';
 
 export const icons = {
     Phone: faPhone,
     Email: faEnvelope,
     LinkedIn: faLinkedin,
-    AngleDown: faAngleDown
+    AngleDown: faAngleDown,
+    FaUpRightFromSquare: faUpRightFromSquare,
+    Browse: faFirefoxBrowser
 };
