@@ -6,7 +6,7 @@ type PortfolioCollectionProps<T extends Record<string, unknown>> = {
     helperAttributes?: {
         name?: string;
         fetchFn?: () => Promise<T[]>;
-        afterFetchTrig?: () => void;
+        afterFetchTrig?: (collection: T[]) => void;
     };
 };
 
@@ -99,7 +99,7 @@ export default function usePortfolioCollection<T extends Record<string, unknown>
 
             // let's mark that the initial fetch already happenned
             silentModel.binders.setToModel('IsInitialFetchHappened', true);
-            if(afterFetchFn) afterFetchFn();
+            if(afterFetchFn) afterFetchFn(result);
         } catch (E) {
             throw 'error found in fetching the collection ' + E;
         }
