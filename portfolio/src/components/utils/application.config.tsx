@@ -5,5 +5,7 @@ export const configs = {
 
     // Date Time formats
     DateFormat: 'MMM dd, yyyy', // mentioned in date-fns library accepted format
-    TimeFormat: 'hh:mm a'
+    TimeFormat: 'hh:mm a',
+
+    DarkGreen: '#112C11',
 };
